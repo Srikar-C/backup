@@ -1,6 +1,12 @@
 import video from "../../assets/video.mp4";
+import AOS from "aos";
+import "aos/dist/aos.css";
+import { useEffect } from "react";
 
 export default function Video() {
+  useEffect(() => {
+    AOS.init({ duration: 1000 });
+  }, []);
   return (
     <div className="video1 flex gap-10 justify-evenly items-center">
       <div

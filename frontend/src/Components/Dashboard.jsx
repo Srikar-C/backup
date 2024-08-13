@@ -107,6 +107,9 @@ export default function Dashboard() {
             setRight(<Right />);
           }}
           account={handleAccount}
+          onRight={() => {
+            setRight(<Right />);
+          }}
         />
       </div>
       <div className="right w-[70%]" data-aos="fade-left">

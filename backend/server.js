@@ -69,6 +69,8 @@ app.get("/", (req, res) => {
       console.log("Send Chat Table Created Successfully");
     }
   });
+
+  res.send({ messasge: "Tables Created Successfully" });
 });
 
 //Register User
@@ -81,7 +83,7 @@ app.post("/register", (req, res) => {
   db.query(checkReg, [useremail, userphone], (err, response) => {
     if (err) {
       console.log(err.message);
-      res.status(500).send({ message: "Error in Checking User in Database" });
+      res.status(500).send({ message: err.message });
     } else if (response.rows.length > 0) {
       console.log(
         `${useremail} or ${userphone} is already Registered, Please Login`
@@ -101,9 +103,7 @@ app.post("/register", (req, res) => {
         (error, result) => {
           if (error) {
             console.log(error.message);
-            res
-              .status(500)
-              .send({ message: `Error in Registering the User in Database` });
+            res.status(500).send({ message: error.message });
           } else {
             console.log("User Registered successfully");
             res.status(201).send(result.rows[0]);
@@ -125,7 +125,7 @@ app.post("/login", (req, res) => {
   db.query(checkLog, [userphone], (err, response) => {
     if (err) {
       console.log(err.message);
-      res.status(500).send({ message: "Error in Checking User in Database" });
+      res.status(500).send({ message: err.message });
     } else if (userphone.length !== 10) {
       console.log("Invalid Phone Number");
       res.status(400).send({ message: "Invalid Phone Number" });
@@ -154,7 +154,7 @@ app.post("/send-email", (req, res) => {
   db.query(query, [to], (err, result) => {
     if (err) {
       console.log(err.message);
-      res.status(500).send({ message: "Error in Checking User in Database" });
+      res.status(500).send({ message: err.message });
     } else if (result.rows.length > 0) {
       console.log(`Sending OTP to registered email ${to}`);
       const transporter = nodemailer.createTransport({
@@ -179,7 +179,7 @@ app.post("/send-email", (req, res) => {
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
           console.error(error);
-          res.status(500).send("Error: Unable to send email");
+          res.status(500).send({ message: error.message });
         } else {
           console.log("Email sent: " + info.response);
           res.status(201).send({ message: "Email sent successfully" });
@@ -200,7 +200,7 @@ app.post("/changepassword", (req, res) => {
   db.query(changeQuery, [useremail, password], (err, result) => {
     if (err) {
       console.log(err.message);
-      res.status(500).send({ message: "Error in Changing Password" });
+      res.status(500).send({ message: err.message });
     } else {
       console.log("Password Changed successfully");
       res.status(201).send(result.rows[0]);
@@ -216,7 +216,7 @@ app.post("/checkfriend", (req, res) => {
   db.query(checkFriendQuery, [userphone], (err, result) => {
     if (err) {
       console.log(err.message);
-      res.status(500).send({ message: "Error in Checking Friend" });
+      res.status(500).send({ message: err.message });
     } else if (result.rows.length === 0) {
       console.log("User not found");
       res
@@ -237,7 +237,7 @@ app.post("/addfriend", (req, res) => {
   db.query(addQuery, [uid, uname, uphone, fname, fphone], (err, result) => {
     if (err) {
       console.log(err.message);
-      res.status(500).send({ message: "Error in Adding Friend" });
+      res.status(500).send({ message: err.message });
     } else {
       console.log("Friend Added successfully");
       res.status(201).send(result.rows[0]);
@@ -256,7 +256,7 @@ app.post("/requestfriend", (req, res) => {
     (err, result) => {
       if (err) {
         console.log(err.message);
-        res.status(500).send({ message: "Error in Requesting Friend" });
+        res.status(500).send({ message: err.message });
       } else {
         console.log("Friend Request sent successfully");
         res.status(201).send(result.rows[0]);
@@ -273,7 +273,7 @@ app.post("/checkrequest", (req, res) => {
   db.query(checkRequestQuery, [phone], (err, result) => {
     if (err) {
       console.log(err.message);
-      res.status(500).send({ message: "Error in Checking Request" });
+      res.status(500).send({ message: err.message });
     } else if (result.rows.length === 0) {
       console.log("No Friend Request found");
       res.status(404).send({ message: "No Friend Request found" });
@@ -297,7 +297,7 @@ app.post("/acceptreq", (req, res) => {
     (err, result) => {
       if (err) {
         console.log(err.message);
-        res.status(500).send({ message: "Error in Accepting Friend Request" });
+        res.status(500).send({ message: err.message });
       } else {
         console.log("Friend Request Accepted successfully");
         res.status(201).send(result.rows[0]);
@@ -314,7 +314,7 @@ app.post("/removereq", (req, res) => {
   db.query(removeQuery, [rid], (err, result) => {
     if (err) {
       console.log(err.message);
-      res.status(500).send({ message: "Error in Deleting Request" });
+      res.status(500).send({ message: err.message });
     } else {
       console.log("Request deleted successfully");
       res.status(201).send({ message: "Request deleted successfully" });
@@ -331,7 +331,7 @@ app.post("/updatereq", (req, res) => {
   db.query(updateQuery, [userphone, friendphone], (err, result) => {
     if (err) {
       console.log(err.message);
-      res.status(500).send({ message: "Error in Updating Request" });
+      res.status(500).send({ message: err.message });
     } else {
       console.log("Request updated successfully");
       res.status(201).send({ message: "Request updated successfully" });
@@ -347,7 +347,7 @@ app.post("/changereq", (req, res) => {
   db.query(updateQuery, [userphone, friendphone], (err, result) => {
     if (err) {
       console.log(err.message);
-      res.status(500).send({ message: "Error in Changing Request" });
+      res.status(500).send({ message: err.message });
     } else {
       console.log("Request updated successfully");
       res.status(201).send({ message: "Request changed successfully" });
@@ -363,7 +363,7 @@ app.post("/getfriends", (req, res) => {
   db.query(getFriendsQuery, [uid], (err, result) => {
     if (err) {
       console.log(err.message);
-      res.status(500).send({ message: "Error in Getting Friends" });
+      res.status(500).send({ message: err.message });
     } else {
       console.log("Friends fetched successfully");
       res.status(201).send(result.rows);
@@ -379,7 +379,7 @@ app.post("/changepin", (req, res) => {
   db.query(pinQuery, [fid, uid], (err, result) => {
     if (err) {
       console.log(err.message);
-      res.status(500).send({ message: "Error in Changing Pin" });
+      res.status(500).send({ message: err.message });
     } else {
       console.log("Pin changed successfully");
       res.status(201).send(result.rows[0]);
@@ -396,7 +396,7 @@ app.delete("/deletefriend_chat", (req, res) => {
     db.query(deleteQuery, [fid, uid], (err, result) => {
       if (err) {
         console.log(err.message);
-        res.status(500).send({ message: "Error in Deleting Friend" });
+        res.status(500).send({ message: err.message });
       } else {
         console.log("Friend deleted successfully");
         res.status(201).send({ message: "DELETION DONE" });
@@ -414,7 +414,7 @@ app.delete("/deletefriend_chat", (req, res) => {
         db.query(check, [fid, uid], (err, response) => {
           if (err) {
             console.log(err.message);
-            res.status(500).send({ message: "Error in Checking Friend" });
+            res.status(500).send({ message: err.message });
           } else if (response.rows === 0) {
             console.log("Friend not found");
             res.status(201).send({ message: "NO DATA" });
@@ -424,14 +424,14 @@ app.delete("/deletefriend_chat", (req, res) => {
         db.query(deleteQuery, [fid, uid], (err, review) => {
           if (err) {
             console.log(err.message);
-            res.status(500).send({ message: "Error in Deleting Friend" });
+            res.status(500).send({ message: err.message });
           } else {
             console.log("Friend deleted successfully");
             const updateQuery = `UPDATE ${friendTable} SET status='3' WHERE userphone=$2 AND friendphone=$1 RETURNING *;`;
-            db.query(updateQuery, [phone1, phone2], (err, resp) => {
-              if (err) {
-                console.log(err.message);
-                res.status(500).send({ message: "Error in Changing Request" });
+            db.query(updateQuery, [phone1, phone2], (error, resp) => {
+              if (error) {
+                console.log(error.message);
+                res.status(500).send({ message: error.message });
               } else {
                 console.log("Request updated successfully");
                 res.status(201).send({ message: "DELETION DONE" });
@@ -455,7 +455,7 @@ app.post("/sendmsg", (req, res) => {
     (err, result) => {
       if (err) {
         console.log(err.message);
-        res.status(500).send({ message: "Error in sending message" });
+        res.status(500).send({ message: err.message });
       } else {
         console.log("Message sent successfully");
         res.status(201).send(result.rows[0]);
@@ -472,7 +472,7 @@ app.post("/getchats", (req, res) => {
   db.query(recMsgQuery, [phone1, phone2], (err, result) => {
     if (err) {
       console.log(err.message);
-      res.status(500).send({ message: "Error in getting message" });
+      res.status(500).send({ message: err.message });
     } else {
       console.log("Got Message successfully" + result.rows);
       res.status(201).send(result.rows);

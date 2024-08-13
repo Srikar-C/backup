@@ -1,7 +1,13 @@
 import Typewriter from "typewriter-effect";
 import Avatar from "@mui/material/Avatar";
+import AOS from "aos";
+import "aos/dist/aos.css";
+import { useEffect } from "react";
 
 export default function Chats() {
+  useEffect(() => {
+    AOS.init({ duration: 1000 });
+  }, []);
   return (
     <div className="flex flex-col gap-10 justify-evenly mt-[10vh] items-center">
       <div

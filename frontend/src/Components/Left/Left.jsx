@@ -134,6 +134,9 @@ export default function Left(props) {
             props.upassword
           );
         }}
+        onRight={() => {
+          props.onRight();
+        }}
       />
       {request ? (
         <div
@@ -167,8 +170,8 @@ export default function Left(props) {
           uid={props.uid}
           onChange={() => {
             getFriends();
-            setDisplay(!display);
             checkRequest();
+            setDisplay(!display);
           }}
         />
       ) : (

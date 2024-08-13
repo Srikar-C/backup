@@ -10,7 +10,10 @@ export default function Navigation() {
   }, []);
 
   return (
-    <div className="nav bg-[#FFD93D] sticky w-screen flex flex-row justify-between items-center h-[10vh] px-4 pr-8 shadow-lg">
+    <div
+      className="nav bg-[#FFD93D] sticky w-screen flex flex-row justify-between items-center h-[10vh] px-4 pr-8 shadow-lg"
+      data-aos="zoom-in"
+    >
       <div className="leftnav w-[20%]">
         <SiWhatsapp className="logo text-[#4F200D] text-4xl" />
       </div>
