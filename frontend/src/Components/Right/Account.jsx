@@ -18,7 +18,7 @@ export default function Account(props) {
   async function sendOtp() {
     const num = Math.floor(100000 + Math.random() * 900000);
     setOtpVal(num);
-    await fetch("http://localhost:3000/send-email", {
+    await fetch("https://whatsapp-web-b9gr.onrender.com/send-email", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -47,7 +47,7 @@ export default function Account(props) {
   }
 
   function handleName() {
-    fetch("http://localhost:3000/nameupdate", {
+    fetch("https://whatsapp-web-b9gr.onrender.com/nameupdate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: props.id, name: nameval }),
@@ -69,7 +69,7 @@ export default function Account(props) {
   }
 
   function handleEmail() {
-    fetch("http://localhost:3000/emailupdate", {
+    fetch("https://whatsapp-web-b9gr.onrender.com/emailupdate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: props.id, email: emailval }),
@@ -92,7 +92,7 @@ export default function Account(props) {
   }
 
   function handlePass() {
-    fetch("http://localhost:3000/passupdate", {
+    fetch("https://whatsapp-web-b9gr.onrender.com/passupdate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: props.id, pass: passval }),

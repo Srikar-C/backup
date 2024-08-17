@@ -5,7 +5,7 @@ import { ImCross } from "react-icons/im";
 
 export default function RequestCard(props) {
   function acceptRequest() {
-    fetch("http://localhost:3000/acceptreq", {
+    fetch("https://whatsapp-web-b9gr.onrender.com/acceptreq", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -35,7 +35,7 @@ export default function RequestCard(props) {
   }
 
   function removeRequest() {
-    fetch("http://localhost:3000/removereq", {
+    fetch("https://whatsapp-web-b9gr.onrender.com/removereq", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -60,7 +60,7 @@ export default function RequestCard(props) {
   }
 
   function updateRequest() {
-    fetch("http://localhost:3000/updatereq", {
+    fetch("https://whatsapp-web-b9gr.onrender.com/updatereq", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -86,7 +86,7 @@ export default function RequestCard(props) {
   }
 
   function changeRequest() {
-    fetch("http://localhost:3000/changereq", {
+    fetch("https://whatsapp-web-b9gr.onrender.com/changereq", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

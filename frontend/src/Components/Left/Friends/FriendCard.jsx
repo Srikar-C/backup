@@ -12,7 +12,7 @@ export default function FriendCard(props) {
   const [value, setValue] = useState(props.fname);
 
   function handlePin() {
-    fetch("http://localhost:3000/changepin", {
+    fetch("https://whatsapp-web-b9gr.onrender.com/changepin", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -43,7 +43,7 @@ export default function FriendCard(props) {
   }
 
   function handleDelete(fid, uid, uphone, fphone, status) {
-    fetch("http://localhost:3000/deletefriend_chat", {
+    fetch("https://whatsapp-web-b9gr.onrender.com/deletefriend_chat", {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

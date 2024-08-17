@@ -19,7 +19,7 @@ export default function Chat(props) {
   }, [props.uid, props.fid]);
 
   function getChats() {
-    fetch("http://localhost:3000/getchats", {
+    fetch("https://whatsapp-web-b9gr.onrender.com/getchats", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -46,7 +46,7 @@ export default function Chat(props) {
   }
 
   function handleDelete(id, fromphone, tophone) {
-    fetch("http://localhost:3000/deletechat", {
+    fetch("https://whatsapp-web-b9gr.onrender.com/deletechat", {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

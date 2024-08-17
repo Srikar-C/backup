@@ -12,7 +12,7 @@ export default function Left(props) {
   const [display, setDisplay] = useState(false);
 
   function getFriends() {
-    fetch(`http://localhost:3000/getfriends`, {
+    fetch(`https://whatsapp-web-b9gr.onrender.com/getfriends`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -37,7 +37,7 @@ export default function Left(props) {
   }
 
   function checkRequest() {
-    fetch("http://localhost:3000/checkrequest", {
+    fetch("https://whatsapp-web-b9gr.onrender.com/checkrequest", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -71,7 +71,7 @@ export default function Left(props) {
   }
 
   function handleRename(prop_uid, prop_fid, prop_value) {
-    fetch("http://localhost:3000/rename", {
+    fetch("https://whatsapp-web-b9gr.onrender.com/rename", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

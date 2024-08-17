@@ -27,7 +27,7 @@ export default function Register() {
     setSpin(true);
     setTimeout(() => {
       console.log("Registration Started");
-      fetch("http://localhost:3000/register", {
+      fetch("https://whatsapp-web-b9gr.onrender.com/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

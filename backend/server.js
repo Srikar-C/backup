@@ -13,6 +13,8 @@ const db = new pg.Client({
   user: "postgres",
   database: "whatsappnew",
   password: "tiger",
+  connectionString:
+    "postgresql://whatsappnew_owner:FI5afMPQAhx2@ep-blue-wind-a579cx4h.us-east-2.aws.neon.tech/whatsappnew?sslmode=require",
 });
 
 db.connect();

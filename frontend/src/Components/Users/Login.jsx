@@ -23,7 +23,7 @@ export default function Login() {
   function handleLogin() {
     setSpin(true);
     setTimeout(() => {
-      fetch("http://localhost:3000/login", {
+      fetch("https://whatsapp-web-b9gr.onrender.com/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

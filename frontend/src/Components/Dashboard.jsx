@@ -26,7 +26,7 @@ export default function Dashboard() {
   }, [uid]);
 
   function getUser() {
-    fetch("http://localhost:3000/getUser", {
+    fetch("https://whatsapp-web-b9gr.onrender.com/getUser", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

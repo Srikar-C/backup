@@ -21,7 +21,7 @@ export default function Forgot() {
     setSpin(true);
     const num = Math.floor(100000 + Math.random() * 900000);
     setTimeout(() => {
-      fetch("http://localhost:3000/send-email", {
+      fetch("https://whatsapp-web-b9gr.onrender.com/send-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

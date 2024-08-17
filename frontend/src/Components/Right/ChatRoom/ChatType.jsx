@@ -31,7 +31,7 @@ export default function ChatType(props) {
         date.getHours() != 12 ? date.getHours() % 12 : date.getHours();
       const min = date.getMinutes();
       const sec = date.getSeconds();
-      fetch("http://localhost:3000/sendmsg", {
+      fetch("https://whatsapp-web-b9gr.onrender.com/sendmsg", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -69,7 +69,7 @@ export default function ChatType(props) {
   }
 
   function handleEditMsg() {
-    fetch("http://localhost:3000/editmsg", {
+    fetch("https://whatsapp-web-b9gr.onrender.com/editmsg", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

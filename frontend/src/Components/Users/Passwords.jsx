@@ -26,7 +26,7 @@ export default function Password() {
     setTimeout(() => {
       if (pass === conf) {
         console.log("Pass: " + pass + " email " + useremail);
-        fetch("http://localhost:3000/changepassword", {
+        fetch("https://whatsapp-web-b9gr.onrender.com/changepassword", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ useremail: useremail, password: pass }),

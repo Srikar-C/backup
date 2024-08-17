@@ -13,7 +13,7 @@ export default function AddFriend(props) {
   }, []);
 
   function addFriend() {
-    fetch("http://localhost:3000/addfriend", {
+    fetch("https://whatsapp-web-b9gr.onrender.com/addfriend", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -44,7 +44,7 @@ export default function AddFriend(props) {
   }
 
   function requestFriend() {
-    fetch("http://localhost:3000/requestfriend", {
+    fetch("https://whatsapp-web-b9gr.onrender.com/requestfriend", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -76,7 +76,7 @@ export default function AddFriend(props) {
   function checkAndAdd() {
     if (name && phone) {
       if (phone.length === 10) {
-        fetch("http://localhost:3000/checkfriend", {
+        fetch("https://whatsapp-web-b9gr.onrender.com/checkfriend", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
