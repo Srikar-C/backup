@@ -3,16 +3,31 @@ import UserNav from "./Navigation/UserNav";
 import AddFriend from "./Friends/AddFriend";
 import DisplayFriends from "./Friends/DisplayFriends";
 import DisplayRequests from "./Requests/DisplayRequests";
+import url from "../../url";
+import Search from "./Search";
 
 export default function Left(props) {
   const [isadd, setAdd] = useState(false);
+  const [search, setSearch] = useState(false);
   const [friends, setFriends] = useState([]);
+  const [filteredFriends, setFilteredFriends] = useState([]);
   const [request, setRequest] = useState(false);
   const [reqFriends, setReqFriends] = useState([]);
   const [display, setDisplay] = useState(false);
 
+  function sortFriends(val) {
+    if (val === "") {
+      setFilteredFriends(friends);
+    } else {
+      const filtered = friends.filter((friend) =>
+        friend.friendname.toLowerCase().includes(val.toLowerCase())
+      );
+      setFilteredFriends(filtered);
+    }
+  }
+
   function getFriends() {
-    fetch(`https://whatsapp-web-b9gr.onrender.com/getfriends`, {
+    fetch(`${url}/getfriends`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -29,6 +44,7 @@ export default function Left(props) {
       })
       .then((data) => {
         setFriends(data);
+        setFilteredFriends(data); // Initialize both lists
       })
       .catch((err) => {
         alert(err);
@@ -37,7 +53,7 @@ export default function Left(props) {
   }
 
   function checkRequest() {
-    fetch("https://whatsapp-web-b9gr.onrender.com/checkrequest", {
+    fetch(`${url}/checkrequest`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -56,22 +72,19 @@ export default function Left(props) {
       })
       .then((data) => {
         console.log("Friend Request: ");
-        data.map((item) => {
-          return <p>{item}</p>;
-        });
         setRequest(true);
         setReqFriends(data);
       })
       .catch((err) => {
         if (err !== "No Friend Request found") {
           alert(err);
+          console.log("Error is: " + err);
         }
-        console.log("Error is: " + err);
       });
   }
 
   function handleRename(prop_uid, prop_fid, prop_value) {
-    fetch("https://whatsapp-web-b9gr.onrender.com/rename", {
+    fetch(`${url}/rename`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -137,12 +150,17 @@ export default function Left(props) {
         onRight={() => {
           props.onRight();
         }}
+        handleSearch={() => {
+          setSearch(!search);
+        }}
       />
+      <hr />
+      {search && <Search map={sortFriends} />}
       {request ? (
         <div
           onClick={() => {
-            setRequest(!request);
-            setDisplay(!display);
+            setRequest(false);
+            setDisplay(true);
           }}
           className="text-center cursor-pointer bg-[#fffb00] text-[#4F200D] w-full h-[5vh] flex items-center justify-center"
         >
@@ -171,18 +189,19 @@ export default function Left(props) {
           onChange={() => {
             getFriends();
             checkRequest();
-            setDisplay(!display);
+            setDisplay(false);
           }}
         />
       ) : (
         <DisplayFriends
-          friends={friends}
+          friends={filteredFriends}
           onChange={() => {
             getFriends();
             props.onChange();
           }}
           onChat={(fid, uid, uname, uphone, fname, fphone, status) => {
             props.chatRoom(fid, uid, uname, uphone, fname, fphone, status);
+            setSearch(false);
           }}
           onChecked={handleRename}
         />

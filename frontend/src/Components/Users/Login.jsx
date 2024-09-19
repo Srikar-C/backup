@@ -8,6 +8,7 @@ import { Link, useNavigate } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { useEffect } from "react";
+import url from "../../url";
 
 export default function Login() {
   const [passEye, setPassEye] = useState(false);
@@ -23,7 +24,7 @@ export default function Login() {
   function handleLogin() {
     setSpin(true);
     setTimeout(() => {
-      fetch("https://whatsapp-web-b9gr.onrender.com/login", {
+      fetch(`${url}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -78,7 +79,7 @@ export default function Login() {
           >
             <svg
               aria-hidden="true"
-              class="w-10 h-10 text-gray-200 animate-spin dark:text-gray-600 fill-[#FFD93D]"
+              className="w-10 h-10 text-gray-200 animate-spin dark:text-gray-600 fill-[#FFD93D]"
               viewBox="0 0 100 101"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -92,7 +93,7 @@ export default function Login() {
                 fill="currentFill"
               />
             </svg>
-            <span class="sr-only">Loading...</span>
+            <span className="sr-only">Loading...</span>
           </div>
         </div>
       ) : (

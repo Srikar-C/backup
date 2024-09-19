@@ -5,6 +5,7 @@ import Avatar from "@mui/material/Avatar";
 import { BsFillPinAngleFill } from "react-icons/bs";
 import { useState } from "react";
 import { TiTick } from "react-icons/ti";
+import url from "../../../url";
 
 export default function FriendCard(props) {
   const [pin, setPin] = useState(props.pin);
@@ -12,7 +13,7 @@ export default function FriendCard(props) {
   const [value, setValue] = useState(props.fname);
 
   function handlePin() {
-    fetch("https://whatsapp-web-b9gr.onrender.com/changepin", {
+    fetch(`${url}/changepin`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -43,7 +44,7 @@ export default function FriendCard(props) {
   }
 
   function handleDelete(fid, uid, uphone, fphone, status) {
-    fetch("https://whatsapp-web-b9gr.onrender.com/deletefriend_chat", {
+    fetch(`${url}/deletefriend_chat`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

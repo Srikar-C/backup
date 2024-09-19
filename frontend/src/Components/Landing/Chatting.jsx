@@ -4,10 +4,11 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { useEffect } from "react";
 
-export default function Chats() {
+export default function Chatting() {
   useEffect(() => {
     AOS.init({ duration: 1000 });
   }, []);
+
   return (
     <div className="flex flex-col gap-10 justify-evenly mt-[10vh] items-center">
       <div
@@ -26,7 +27,7 @@ export default function Chats() {
         >
           <div className="justify-center w-fit text-wrap bg-transparent flex text-start items-center gap-1">
             <div className="flex flex-row relative w-fit break-all text-wrap bg-[#000] pr-14 px-3 py-1 rounded-tl-lg rounded-bl-lg">
-              <p>
+              <div>
                 <Typewriter
                   className="text-white"
                   options={{
@@ -35,8 +36,8 @@ export default function Chats() {
                     autoStart: true,
                   }}
                 />
-                <sub className="absolute bottom-3 right-1 ">3:34</sub>{" "}
-              </p>
+                <sub className="absolute bottom-3 right-1 ">3:34</sub>
+              </div>
             </div>
           </div>
           <Avatar
@@ -58,7 +59,7 @@ export default function Chats() {
               {"Family".substring(0, 2).toUpperCase()}
             </Avatar>
             <div className="flex relative w-fit break-all text-wrap bg-[#fff] pr-14 px-3 py-1 rounded-tr-lg rounded-br-lg">
-              <p>
+              <div>
                 <Typewriter
                   className="text-white"
                   options={{
@@ -67,8 +68,8 @@ export default function Chats() {
                     autoStart: true,
                   }}
                 />
-                <sub className="absolute bottom-3 right-1 ">1:28</sub>{" "}
-              </p>
+                <sub className="absolute bottom-3 right-1 ">1:28</sub>
+              </div>
             </div>
           </div>
         </div>

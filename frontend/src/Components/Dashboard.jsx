@@ -6,6 +6,7 @@ import Chat from "./Right/ChatRoom/Chat";
 import Account from "./Right/Account";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import url from "../url.jsx";
 
 export default function Dashboard() {
   const location = useLocation();
@@ -26,7 +27,7 @@ export default function Dashboard() {
   }, [uid]);
 
   function getUser() {
-    fetch("https://whatsapp-web-b9gr.onrender.com/getUser", {
+    fetch(`${url}/getUser`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -76,6 +77,33 @@ export default function Dashboard() {
         status={status}
       />
     );
+    fetch(`${url}/setdaily`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        uid: uid,
+        fid: fid,
+      }),
+    })
+      .then((response) => {
+        if (response.status === 201) {
+          return response.json();
+        }
+        return response.json().then((data) => {
+          return Promise.reject(data.message);
+        });
+      })
+      .then((data) => {
+        console.log("daily entered");
+      })
+      .catch((error) => {
+        if (error != "Data already inserted") {
+          alert(error);
+        }
+        console.log("Error: " + error);
+      });
   }
 
   function handleAccount(id, name, email, phone, password) {

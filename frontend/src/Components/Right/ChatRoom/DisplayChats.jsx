@@ -2,9 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import ChatDrop from "./ChatDrop";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import url from "../../../url";
 
 export default function DisplayChats(props) {
   const chatContainerRef = useRef(null);
+  const [head, setHead] = useState(false);
 
   useEffect(() => {
     AOS.init({ duration: 1000 });
@@ -17,8 +19,60 @@ export default function DisplayChats(props) {
     }
   }, [props.chats]);
 
+  const date = new Date();
+  const day = date.getDate();
+  const month = date.getMonth();
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  const monthName = months[month];
+  const year = date.getFullYear();
+
+  useEffect(() => {
+    fetch(`${url}/getdaily`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ uid: props.uid, fid: props.fid }),
+    })
+      .then((response) => {
+        if (response.status === 201) {
+          return response.json();
+        }
+        return response.json().then((data) => {
+          return Promise.reject(data.message);
+        });
+      })
+      .then((data) => {
+        setHead(data.chatted);
+      })
+      .catch((err) => {
+        alert(err);
+        console.log("Error in getting daily head: " + err);
+      });
+  }, [1000]);
+
   return (
     <div ref={chatContainerRef} className="h-[80vh] overflow-y-auto pt-1">
+      {head && (
+        <div className="flex items-center">
+          <p>{day}</p>
+          <p>{monthName}</p>
+          <p>{year}</p>
+        </div>
+      )}
       {props.chats?.map((item) => {
         if (item.fromphone === props.uphone) {
           return (
@@ -32,6 +86,8 @@ export default function DisplayChats(props) {
                   fromphone={item.fromphone}
                   tophone={item.tophone}
                   message={item.message}
+                  minutes={item.minutes}
+                  hours={item.hours}
                   onDelete={(id, fromphone, tophone) => {
                     props.onChecked(id, fromphone, tophone);
                   }}

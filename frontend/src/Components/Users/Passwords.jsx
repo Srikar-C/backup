@@ -6,6 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { useEffect } from "react";
+import url from "../../url";
 
 export default function Password() {
   const [pass, setPass] = useState("");
@@ -26,7 +27,7 @@ export default function Password() {
     setTimeout(() => {
       if (pass === conf) {
         console.log("Pass: " + pass + " email " + useremail);
-        fetch("https://whatsapp-web-b9gr.onrender.com/changepassword", {
+        fetch(`${url}/changepassword`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ useremail: useremail, password: pass }),

@@ -7,6 +7,11 @@ import { LuArrowDownLeft } from "react-icons/lu";
 
 export default function ChatDrop(props) {
   const [anchorEl, setAnchorEl] = useState(null);
+
+  const date = new Date();
+  const min = date.getMinutes();
+  const hrs = date.getHours() != 12 ? date.getHours() % 12 : date.getHours();
+
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -35,19 +40,22 @@ export default function ChatDrop(props) {
         onClose={handleClose}
         TransitionComponent={Fade}
       >
-        <MenuItem
-          onClick={() => {
-            props.onEdit(
-              props.id,
-              props.fromphone,
-              props.tophone,
-              props.message
-            );
-            handleClose();
-          }}
-        >
-          Edit
-        </MenuItem>
+        {Math.abs(min - props.minutes) <= 5 &&
+          Math.abs(hrs - props.hours) == 0 && (
+            <MenuItem
+              onClick={() => {
+                props.onEdit(
+                  props.id,
+                  props.fromphone,
+                  props.tophone,
+                  props.message
+                );
+                handleClose();
+              }}
+            >
+              Edit
+            </MenuItem>
+          )}
         <MenuItem
           onClick={() => {
             props.onDelete(props.id, props.fromphone, props.tophone);

@@ -3,6 +3,7 @@ import { FaUserAlt, FaPhoneAlt } from "react-icons/fa";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { useEffect } from "react";
+import url from "../../../url";
 
 export default function AddFriend(props) {
   const [name, setName] = useState("");
@@ -13,7 +14,7 @@ export default function AddFriend(props) {
   }, []);
 
   function addFriend() {
-    fetch("https://whatsapp-web-b9gr.onrender.com/addfriend", {
+    fetch(`${url}/addfriend`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -44,7 +45,7 @@ export default function AddFriend(props) {
   }
 
   function requestFriend() {
-    fetch("https://whatsapp-web-b9gr.onrender.com/requestfriend", {
+    fetch(`${url}/requestfriend`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -76,13 +77,14 @@ export default function AddFriend(props) {
   function checkAndAdd() {
     if (name && phone) {
       if (phone.length === 10) {
-        fetch("https://whatsapp-web-b9gr.onrender.com/checkfriend", {
+        fetch(`${url}/checkfriend`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
             userphone: phone,
+            friendphone: props.uphone,
           }),
         })
           .then((response) => {
@@ -105,7 +107,7 @@ export default function AddFriend(props) {
             console.log("Error on checking friend: " + err);
           });
       } else {
-        alert("Please enter correct Phone Number");
+        alert("Phone Number should contain 10 digits");
       }
     } else {
       alert("Please fill both details completely");

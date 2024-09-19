@@ -2,10 +2,11 @@ import CardHeader from "@mui/material/CardHeader";
 import Avatar from "@mui/material/Avatar";
 import { TiTick } from "react-icons/ti";
 import { ImCross } from "react-icons/im";
+import url from "../../../url";
 
 export default function RequestCard(props) {
   function acceptRequest() {
-    fetch("https://whatsapp-web-b9gr.onrender.com/acceptreq", {
+    fetch(`${url}/acceptreq`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -35,7 +36,7 @@ export default function RequestCard(props) {
   }
 
   function removeRequest() {
-    fetch("https://whatsapp-web-b9gr.onrender.com/removereq", {
+    fetch(`${url}/removereq`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -60,7 +61,7 @@ export default function RequestCard(props) {
   }
 
   function updateRequest() {
-    fetch("https://whatsapp-web-b9gr.onrender.com/updatereq", {
+    fetch(`${url}/updatereq`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -86,7 +87,7 @@ export default function RequestCard(props) {
   }
 
   function changeRequest() {
-    fetch("https://whatsapp-web-b9gr.onrender.com/changereq", {
+    fetch(`${url}/changereq`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

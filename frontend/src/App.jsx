@@ -1,12 +1,12 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Landing from "./Components/Landing/Landing";
 import Login from "./Components/Users/Login";
-import Navigation from "./Components/Landing/Navigation";
 import Register from "./Components/Users/Register";
 import Forgot from "./Components/Users/Forgot";
 import Password from "./Components/Users/Passwords";
 import Dashboard from "./Components/Dashboard";
-import Verify from "./Components/Users/Verify";
+import VerifyPass from "./Components/Users/VerifyPass";
+import VerifyAccount from "./Components/Users/VerifyAccount";
 
 function App() {
   return (
@@ -16,7 +16,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot" element={<Forgot />} />
-        <Route path="/verify" element={<Verify />} />
+        <Route path="/verifypass" element={<VerifyPass />} />
+        <Route path="/verifyacc" element={<VerifyAccount />} />
         <Route path="/changepassword" element={<Password />} />
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes>

@@ -4,7 +4,7 @@ import "aos/dist/aos.css";
 import { useEffect } from "react";
 import "../Users/usercss.css";
 import Video from "./Video";
-import Chats from "./Chats";
+import Chatting from "./Chatting";
 
 export default function Landing() {
   useEffect(() => {
@@ -12,13 +12,10 @@ export default function Landing() {
   }, []);
 
   return (
-    <div
-      className="gradient-bg flex flex-col bg-[#F6F1E9] h-[135vh] overflow-x-hidden"
-      // data-aos="zoom-in"
-    >
+    <div className="gradient-bg flex flex-col bg-[#F6F1E9] h-[135vh] overflow-x-hidden">
       <Navigation />
       <Video />
-      <Chats />
+      <Chatting />
     </div>
   );
 }

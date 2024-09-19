@@ -8,7 +8,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { useEffect } from "react";
 
-export default function Verify() {
+export default function VerifyAccount() {
   const location = useLocation();
   const { number, email } = location.state || {};
   const [otp, setOtp] = useState("");
@@ -27,10 +27,10 @@ export default function Verify() {
         setSpin(false);
         alert("Verified");
         console.log("Verify.jsx-> " + email);
-        navigate("/changepassword", { state: { useremail: email } });
+        navigate("/login", { state: { useremail: email } });
       } else {
         setSpin(false);
-        alert("Not Equal");
+        alert("Incorrect OTP");
       }
     }, 5000);
   }
@@ -68,7 +68,7 @@ export default function Verify() {
       ) : (
         ""
       )}
-      <Link to="/forgot">
+      <Link to="/register">
         <span className="absolute top-10 left-20 text-6xl">
           <IoMdArrowRoundBack />
         </span>
@@ -79,7 +79,7 @@ export default function Verify() {
         </div>
         <div className="inputs flex flex-col gap-5 items-center space-y-1 *:w-[100%]">
           <h1 className="heading font-semibold text-[#4F200D] text-center uppercase tracking-wider">
-            Enter OTP
+            Verify Account
           </h1>
           <div className="email relative flex items-center bg-transparent rounded-full shadow-inner shadow-black gap-3 px-3 py-2">
             <MdEmail className="text-[#4F200D] w-[25px] text-2xl" />

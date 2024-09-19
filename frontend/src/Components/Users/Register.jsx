@@ -9,6 +9,7 @@ import { Link, useNavigate } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { useEffect } from "react";
+import url from "../../url";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ export default function Register() {
     setSpin(true);
     setTimeout(() => {
       console.log("Registration Started");
-      fetch("https://whatsapp-web-b9gr.onrender.com/register", {
+      fetch(`${url}/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -53,9 +54,40 @@ export default function Register() {
           setEmail("");
           setPhone("");
           setPass("");
-          setSpin(false);
-          alert("User registered successfully");
-          navigate("/login");
+          const num = Math.floor(100000 + Math.random() * 900000);
+          setTimeout(() => {
+            fetch(`${url}/send-email`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                to: email,
+                subject: "OTP Details",
+                text: num,
+              }),
+            })
+              .then((response) => {
+                if (response.status === 201) {
+                  return response.json();
+                }
+                return response.json().then((data) => {
+                  return Promise.reject(data.message);
+                });
+              })
+              .then((data) => {
+                setSpin(false);
+                alert("OTP sent, Check and Enter");
+                navigate("/verifyacc", {
+                  state: { number: num, email: email },
+                });
+              })
+              .catch((err) => {
+                setSpin(false);
+                alert(err);
+                console.log("Error: " + err);
+              });
+          }, 5000);
         })
         .catch((err) => {
           setSpin(false);
@@ -98,7 +130,7 @@ export default function Register() {
       ) : (
         ""
       )}
-      <Link to="/">
+      <Link to="/register">
         <span className="absolute top-10 left-20 text-6xl">
           <IoMdArrowRoundBack />
         </span>

@@ -13,8 +13,8 @@ const db = new pg.Client({
   user: "postgres",
   database: "whatsappnew",
   password: "tiger",
-  connectionString:
-    "postgresql://whatsappnew_owner:FI5afMPQAhx2@ep-blue-wind-a579cx4h.us-east-2.aws.neon.tech/whatsappnew?sslmode=require",
+  // connectionString:
+  //   "postgresql://whatsappnew_owner:FI5afMPQAhx2@ep-blue-wind-a579cx4h.us-east-2.aws.neon.tech/whatsappnew?sslmode=require",
 });
 
 db.connect();
@@ -33,6 +33,7 @@ const userTable = "users";
 const friendTable = "friends";
 const requestTable = "requests";
 const chatTable = "chats";
+const dailyTable = "daily";
 
 //Create Tables
 app.get("/", (req, res) => {
@@ -63,12 +64,21 @@ app.get("/", (req, res) => {
     }
   });
 
-  const chatQuery = `CREATE TABLE ${chatTable}(id serial primary key,fromphone varchar(10),tophone varchar(10),message text,hours varchar(2),minutes varchar(2),seconds varchar(2));`;
+  const chatQuery = `CREATE TABLE ${chatTable}(id serial primary key,uid integer,fid integer,fromphone varchar(10),tophone varchar(10),message text,hours varchar(2),minutes varchar(2),seconds varchar(2));`;
   db.query(chatQuery, (err, result) => {
     if (err) {
       console.log(err.message);
     } else {
       console.log("Send Chat Table Created Successfully");
+    }
+  });
+
+  const dailyLogin = `CREATE TABLE ${dailyTable}(id serial primary key,uid integer,fid integer, date varchar(2),month varchar(20),year varchar(10),chatted boolean DEFAULT false);`;
+  db.query(dailyLogin, (err, result) => {
+    if (err) {
+      console.log(err.message);
+    } else {
+      console.log("Daily Login Table Created Successfully");
     }
   });
 
@@ -175,8 +185,7 @@ app.post("/send-email", (req, res) => {
           "1) Enter this OTP: " +
           text +
           "\n" +
-          "2) Click on Verify OTP\n" +
-          "3) And Change your Password",
+          "2) Click on Verify OTP\n",
       };
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
@@ -212,7 +221,7 @@ app.post("/changepassword", (req, res) => {
 
 //Check Friend
 app.post("/checkfriend", (req, res) => {
-  const { userphone } = req.body;
+  const { userphone, friendphone } = req.body;
   console.log("Checking Friend");
   const checkFriendQuery = `SELECT * FROM ${userTable} where userphone=$1;`;
   db.query(checkFriendQuery, [userphone], (err, result) => {
@@ -226,7 +235,20 @@ app.post("/checkfriend", (req, res) => {
         .send({ message: "User don't have account to communicate with you." });
     } else {
       console.log("Friend found");
-      res.status(201).send(result.rows[0]);
+      const alreadyFriend = `SELECT * FROM ${friendTable} where userphone=$2 and friendphone=$1;`;
+      db.query(alreadyFriend, [userphone, friendphone], (error, response) => {
+        if (error) {
+          console.log(error.message);
+          res.status(500).send({ message: error.message });
+        } else if (response.rows.length === 0) {
+          res.status(201).send(result.rows[0]);
+        } else {
+          console.log("Friend");
+          res
+            .status(303)
+            .send({ message: "You have another friend with same number" });
+        }
+      });
     }
   });
 });
@@ -448,12 +470,13 @@ app.delete("/deletefriend_chat", (req, res) => {
 
 //Send Messages
 app.post("/sendmsg", (req, res) => {
-  const { fromphone, tophone, message, hours, minutes, seconds } = req.body;
+  const { uid, fid, fromphone, tophone, message, hours, minutes, seconds } =
+    req.body;
   console.log("Sending Messages to ", tophone, " from ", fromphone);
-  const sendMsgQuery = `INSERT INTO ${chatTable} (fromphone, tophone, message,hours,minutes,seconds) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *;`;
+  const sendMsgQuery = `INSERT INTO ${chatTable} (uid,fid,fromphone, tophone, message,hours,minutes,seconds) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *;`;
   db.query(
     sendMsgQuery,
-    [fromphone, tophone, message, hours, minutes, seconds],
+    [uid, fid, fromphone, tophone, message, hours, minutes, seconds],
     (err, result) => {
       if (err) {
         console.log(err.message);
@@ -593,6 +616,198 @@ app.post("/getuser", (req, res) => {
     } else {
       console.log("User retrieved successfully" + result.rows[0]);
       res.status(201).send(result.rows[0]);
+    }
+  });
+});
+
+//set daily
+app.post("/setdaily", (req, res) => {
+  const { uid, fid } = req.body;
+  const day = new Date();
+  const date = day.getDate();
+  const month = day.getMonth();
+  const year = day.getFullYear();
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  const monthName = months[month];
+  const checkDaily = `SELECT * FROM ${dailyTable} where uid=$1 and fid=$2 and date=$3 and month=$4;`;
+  db.query(checkDaily, [uid, fid, date, monthName], (err, result) => {
+    if (err) {
+      console.log("Error checking data: ", err.message);
+      res.status(500).send({ message: "Error checking data" });
+    } else {
+      if (result.rows.length === 0) {
+        console.log("No data found. Inserting data.");
+        const dailyQuery = `INSERT INTO ${dailyTable} (uid,fid,date, month, year) VALUES ($1, $2, $3,$4,$5) RETURNING *`;
+        db.query(
+          dailyQuery,
+          [uid, fid, date, monthName, year],
+          (err, result) => {
+            if (err) {
+              console.log("Error inserting data: ", err.message);
+              res.status(500).send({ message: "Error inserting data" });
+            } else {
+              console.log("Data inserted successfully:", result.rows[0]);
+              res.status(201).send({
+                message: "Data inserted successfully",
+                data: result.rows[0],
+              });
+            }
+          }
+        );
+      } else {
+        res.status(303).send({ message: "Data already inserted" });
+      }
+    }
+  });
+});
+
+//update daily
+app.post("/updatedaily", (req, res) => {
+  const { uid, fid, date, month } = req.body;
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  const monthName = months[month];
+  console.log("update daily: ", uid, fid, date, month, monthName);
+  const checkUpdate = `SELECT * FROM ${dailyTable} WHERE uid=$1 and fid=$2 and date=$3 and month=$4 ;`;
+  db.query(checkUpdate, [uid, fid, date, monthName], (err, result) => {
+    if (err) {
+      console.log("Error checking data: ", err.message);
+      res.status(500).send({ message: "Error checking data" });
+    } else {
+      if (!result.rows[0].chatted) {
+        const updateQuery = `UPDATE ${dailyTable} SET chatted=true where uid=$1 and fid=$2 and date=$3 and month=$4;`;
+        db.query(updateQuery, [uid, fid, date, monthName], (err, result) => {
+          if (err) {
+            console.log("update: " + err.message);
+            res.status(500).send({ message: err.message });
+          } else {
+            console.log("Data updated successfully");
+            res.status(201).send({ message: "Data updated successfully" });
+          }
+        });
+      } else {
+        res.status(201).send({ message: "Data successfully" });
+      }
+    }
+  });
+});
+
+//get daily
+app.post("/getdaily", (req, res) => {
+  const { uid, fid } = req.body;
+  const date = new Date();
+  const day = date.getDate();
+  const month = date.getMonth();
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  const monthName = months[month];
+  const getQuery = `SELECT * FROM ${dailyTable} where uid=$1 and fid=$2 and date=$3 and month=$4;`;
+  db.query(getQuery, [uid, fid, day, monthName], (err, result) => {
+    if (err) {
+      console.log("Error retrieving data: ", err.message);
+      res.status(500).send({ message: "Error retrieving data" });
+    } else {
+      console.log("Data retrieved successfully" + result.rows[0]);
+      res.status(201).send(result.rows[0]);
+    }
+  });
+});
+//check daily
+app.post("/checkdaily", (req, res) => {
+  const { uid, fid } = req.body;
+  const checkQuery = `SELECT chatted FROM ${dailyTable} WHERE uid=$1 and fid=$2;`;
+  db.query(checkQuery, [uid, fid], (err, result) => {
+    if (err) {
+      console.log(err.message);
+      res.status(500).send({ message: err.message });
+    } else {
+      console.log("Data retrieved successfully" + result.rows[0]);
+      res.status(201).send(result.rows[0]);
+    }
+  });
+});
+
+app.get("/users", (req, res) => {
+  db.query(`SELECT * FROM ${userTable};`, (err, result) => {
+    if (err) {
+      console.log(err.message);
+      res.status(500).send({ message: err.message });
+    } else {
+      console.log("Users retrieved successfully" + result.rows);
+      res.status(201).send(result.rows);
+    }
+  });
+});
+
+app.get("/requests", (req, res) => {
+  db.query(`SELECT * FROM ${requestTable};`, (err, result) => {
+    if (err) {
+      console.log(err.message);
+      res.status(500).send({ message: err.message });
+    } else {
+      console.log("Users retrieved successfully" + result.rows);
+      res.status(201).send(result.rows);
+    }
+  });
+});
+
+app.get("/friends", (req, res) => {
+  db.query(`SELECT * FROM ${friendTable};`, (err, result) => {
+    if (err) {
+      console.log(err.message);
+      res.status(500).send({ message: err.message });
+    } else {
+      console.log("Users retrieved successfully" + result.rows);
+      res.status(201).send(result.rows);
+    }
+  });
+});
+
+app.get("/chats", (req, res) => {
+  db.query(`SELECT * FROM ${chatTable};`, (err, result) => {
+    if (err) {
+      console.log(err.message);
+      res.status(500).send({ message: err.message });
+    } else {
+      console.log("Users retrieved successfully" + result.rows);
+      res.status(201).send(result.rows);
     }
   });
 });

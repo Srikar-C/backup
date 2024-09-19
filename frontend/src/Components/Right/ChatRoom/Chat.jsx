@@ -4,6 +4,7 @@ import ChatType from "./ChatType";
 import DisplayChats from "./DisplayChats";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import url from "../../../url";
 
 export default function Chat(props) {
   const [chat, setChat] = useState([]);
@@ -19,7 +20,7 @@ export default function Chat(props) {
   }, [props.uid, props.fid]);
 
   function getChats() {
-    fetch("https://whatsapp-web-b9gr.onrender.com/getchats", {
+    fetch(`${url}/getchats`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -36,7 +37,6 @@ export default function Chat(props) {
       })
       .then((data) => {
         setChat(data);
-        console.log("Data came");
         setEdit(false);
       })
       .catch((err) => {
@@ -46,7 +46,7 @@ export default function Chat(props) {
   }
 
   function handleDelete(id, fromphone, tophone) {
-    fetch("https://whatsapp-web-b9gr.onrender.com/deletechat", {
+    fetch(`${url}/deletechat`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -87,6 +87,8 @@ export default function Chat(props) {
       />
       <DisplayChats
         chats={chat}
+        uid={props.uid}
+        fid={props.fid}
         uphone={props.uphone}
         fphone={props.fphone}
         onChecked={handleDelete}

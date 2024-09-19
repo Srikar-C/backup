@@ -3,19 +3,19 @@ import { RiAttachment2 } from "react-icons/ri";
 import { IoSend } from "react-icons/io5";
 import { useEffect, useState } from "react";
 import { RxCrossCircled } from "react-icons/rx";
+import url from "../../../url";
 
 export default function ChatType(props) {
   const [msg, setMsg] = useState("");
   const [cross, setCross] = useState(false);
   const [edit, setEdit] = useState(props.det.message);
   const [cross2, setCross2] = useState(false);
+  const [head, setHead] = useState(false);
   const date = new Date();
 
   useEffect(() => {
     setEdit(props.det.message);
   }, [props.det.message]);
-
-  console.log(props.edit + " " + edit + " " + props.det.message);
 
   useEffect(() => {
     if (msg !== "") {
@@ -31,12 +31,76 @@ export default function ChatType(props) {
         date.getHours() != 12 ? date.getHours() % 12 : date.getHours();
       const min = date.getMinutes();
       const sec = date.getSeconds();
-      fetch("https://whatsapp-web-b9gr.onrender.com/sendmsg", {
+      const day = date.getDate();
+      const month = date.getMonth();
+      const year = date.getFullYear();
+
+      fetch(`${url}/checkdaily`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          uid: props.uid,
+          fid: props.fid,
+        }),
+      })
+        .then((response) => {
+          if (response.status === 201) {
+            return response.json();
+          }
+          return response.json().then((data) => {
+            return Promise.reject(data.message);
+          });
+        })
+        .then((data) => {
+          if (!data.chatted) {
+            fetch(`${url}/updatedaily`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                uid: props.uid,
+                fid: props.fid,
+                date: day,
+                month: month,
+              }),
+            })
+              .then((response) => {
+                if (response.status === 201) {
+                  return response.json();
+                }
+                return response.json().then((data) => {
+                  return Promise.reject(data.message);
+                });
+              })
+              .then((data) => {
+                console.log(data, head);
+                setHead(true);
+              })
+              .catch((err) => {
+                alert(err);
+                console.log("Error in setting head: " + err);
+              });
+          } else {
+            console.log(head);
+          }
+          console.log(data);
+        })
+        .catch((err) => {
+          alert(err);
+          console.log("Error in checking daily: " + err);
+        });
+
+      fetch(`${url}/sendmsg`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          uid: props.uid,
+          fid: props.fid,
           fromphone: props.uphone,
           tophone: props.fphone,
           message: msg,
@@ -57,7 +121,6 @@ export default function ChatType(props) {
         .then((data) => {
           setMsg("");
           props.onChecked();
-          console.log("Message sent successfully" + data);
         })
         .catch((err) => {
           alert(err);
@@ -69,7 +132,7 @@ export default function ChatType(props) {
   }
 
   function handleEditMsg() {
-    fetch("https://whatsapp-web-b9gr.onrender.com/editmsg", {
+    fetch(`${url}/editmsg`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -91,7 +154,6 @@ export default function ChatType(props) {
         }
       })
       .then((data) => {
-        alert("Message edited successfully");
         props.onChecked();
       })
       .catch((err) => {
