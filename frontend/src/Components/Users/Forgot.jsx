@@ -49,7 +49,7 @@ export default function Forgot() {
         .catch((err) => {
           setSpin(false);
           alert(err);
-          console.log("Error: " + err);
+          console.log("Forgot.jsx->Error on sending OTP: " + err);
         });
     }, 5000);
   }

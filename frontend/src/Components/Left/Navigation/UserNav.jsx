@@ -5,11 +5,10 @@ import UserDrop from "./UserDrop";
 
 export default function UserNav(props) {
   return (
-    <div className="*:transition-all w-full h-[10vh] flex flex-row gap-4 justify-between bg-[#FFD93D] text-[#4F200D] px-2 py-2 items-center shadow-xl ">
+    <div className="*:transition-all w-full h-[10vh] flex flex-row gap-3 justify-between bg-[#FFD93D] text-[#4F200D] px-2 py-2 items-center shadow-xl ">
       <SiWhatsapp
         className="text-3xl cursor-pointer"
         onClick={() => {
-          // alert();
           props.onRight();
         }}
       />

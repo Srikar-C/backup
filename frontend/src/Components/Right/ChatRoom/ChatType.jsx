@@ -1,16 +1,16 @@
 import { GrEmoji } from "react-icons/gr";
-import { RiAttachment2 } from "react-icons/ri";
 import { IoSend } from "react-icons/io5";
 import { useEffect, useState } from "react";
 import { RxCrossCircled } from "react-icons/rx";
+import EmojiPicker from "emoji-picker-react";
 import url from "../../../url";
+import UploadDocs from "./UploadDocs";
 
 export default function ChatType(props) {
   const [msg, setMsg] = useState("");
   const [cross, setCross] = useState(false);
   const [edit, setEdit] = useState(props.det.message);
   const [cross2, setCross2] = useState(false);
-  const [head, setHead] = useState(false);
   const date = new Date();
 
   useEffect(() => {
@@ -25,10 +25,14 @@ export default function ChatType(props) {
     }
   });
 
+  const onEmojiClick = (emojiObject) => {
+    setMsg((prevMsg) => prevMsg + emojiObject.emoji);
+  };
+
   function handleMsg() {
     if (msg !== "") {
       const hrs =
-        date.getHours() != 12 ? date.getHours() % 12 : date.getHours();
+        date.getHours() !== 12 ? date.getHours() % 12 : date.getHours();
       const min = date.getMinutes();
       const sec = date.getSeconds();
       const day = date.getDate();
@@ -41,8 +45,14 @@ export default function ChatType(props) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          uid: props.uid,
-          fid: props.fid,
+          fromphone: props.uphone,
+          tophone: props.fphone,
+          day: day,
+          month: month,
+          year: year,
+          hours: hrs,
+          minutes: min,
+          seconds: sec,
         }),
       })
         .then((response) => {
@@ -54,77 +64,42 @@ export default function ChatType(props) {
           });
         })
         .then((data) => {
-          if (!data.chatted) {
-            fetch(`${url}/updatedaily`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                uid: props.uid,
-                fid: props.fid,
-                date: day,
-                month: month,
-              }),
-            })
-              .then((response) => {
-                if (response.status === 201) {
-                  return response.json();
-                }
-                return response.json().then((data) => {
-                  return Promise.reject(data.message);
-                });
-              })
-              .then((data) => {
-                console.log(data, head);
-                setHead(true);
-              })
-              .catch((err) => {
-                alert(err);
-                console.log("Error in setting head: " + err);
+          fetch(`${url}/sendmsg`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              uid: props.uid,
+              fid: props.fid,
+              fromphone: props.uphone,
+              tophone: props.fphone,
+              message: msg,
+              hours: hrs,
+              minutes: min,
+              seconds: sec,
+            }),
+          })
+            .then((response) => {
+              if (response.status === 201) {
+                return response.json();
+              }
+              return response.json().then((data) => {
+                return Promise.reject(data.message);
               });
-          } else {
-            console.log(head);
-          }
-          console.log(data);
-        })
-        .catch((err) => {
-          alert(err);
-          console.log("Error in checking daily: " + err);
-        });
-
-      fetch(`${url}/sendmsg`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          uid: props.uid,
-          fid: props.fid,
-          fromphone: props.uphone,
-          tophone: props.fphone,
-          message: msg,
-          hours: hrs,
-          minutes: min,
-          seconds: sec,
-        }),
-      })
-        .then((response) => {
-          if (response.status === 201) {
-            return response.json();
-          } else {
-            return response.json().then((data) => {
-              alert(data.message);
+            })
+            .then((data) => {
+              setMsg("");
+              props.onChecked();
+            })
+            .catch((err) => {
+              alert(err);
+              console.log("ChatType.jsx->Error in sending message: " + err);
             });
-          }
-        })
-        .then((data) => {
-          setMsg("");
-          props.onChecked();
         })
         .catch((err) => {
           alert(err);
-          console.log("Error in sending message: " + err);
+          console.log("ChatType.jsx->Error in checking daily: " + err);
         });
     } else {
       alert("Enter a message to send");
@@ -147,25 +122,33 @@ export default function ChatType(props) {
       .then((response) => {
         if (response.status === 201) {
           return response.json();
-        } else {
-          return response.json().then((data) => {
-            alert(data.message);
-          });
         }
+        return response.json().then((data) => {
+          return Promise.reject(data.message);
+        });
       })
       .then((data) => {
         props.onChecked();
       })
       .catch((err) => {
         alert(err);
-        console.log("Error in editing message: " + err);
+        console.log("ChatType.jsx->Error in editing message: " + err);
       });
   }
 
   return (
-    <footer className="h-[10vh] flex items-center justify-between px-3 gap-3 rounded-tl-xl rounded-tr-xl bg-[#FFD93D]">
-      <GrEmoji className="text-4xl font-light" title="Add Emojies" />
-      <RiAttachment2 className="text-4xl font-light" title="Attachments" />
+    <footer className="h-[10vh] flex items-center justify-between px-3 gap-3 rounded-tl-xl rounded-tr-xl bg-[#FFD93D] relative">
+      <GrEmoji
+        className="text-4xl font-light cursor-pointer"
+        title="Add Emojies"
+        onClick={() => props.setEmoji(!props.emoji)}
+      />
+      {props.emoji && (
+        <div ref={props.emojiRef} className="absolute bottom-[10vh] left-3">
+          <EmojiPicker onEmojiClick={onEmojiClick} />
+        </div>
+      )}
+      <UploadDocs />
       {!props.edit ? (
         props.status === "2" ? (
           <div className="input flex justify-between w-[80%] h-[70%] items-center bg-[#fff] p-2 rounded-xl">

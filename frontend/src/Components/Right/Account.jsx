@@ -49,7 +49,7 @@ export default function Account(props) {
         })
         .catch((err) => {
           alert(err);
-          console.log("Error: " + err);
+          console.log("Account.jsx->Error on sending OTP: " + err);
         });
     }, 5000);
   }
@@ -63,16 +63,17 @@ export default function Account(props) {
       .then((response) => {
         if (response.status === 201) {
           return response.json();
-        } else if (response.status === 500) {
-          return Promise.reject("Error");
         }
+        return response.json().then((data) => {
+          return Promise.reject(data.message);
+        });
       })
       .then((data) => {
         setName(!name);
       })
       .catch((err) => {
         alert(err);
-        console.log("Error in updating name: " + err);
+        console.log("Account.jsx->Error in updating name: " + err);
       });
   }
 
@@ -95,7 +96,7 @@ export default function Account(props) {
       })
       .catch((err) => {
         alert(err);
-        console.log("Error in updating email: " + err);
+        console.log("Account.jsx->Error in updating email: " + err);
       });
   }
 
@@ -118,7 +119,7 @@ export default function Account(props) {
       })
       .catch((err) => {
         alert(err);
-        console.log("Error in updating pass: " + err);
+        console.log("Account.jsx->Error in updating pass: " + err);
       });
   }
 

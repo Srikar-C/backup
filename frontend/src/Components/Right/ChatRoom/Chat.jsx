@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import ChatNav from "./ChatNav";
 import ChatType from "./ChatType";
 import DisplayChats from "./DisplayChats";
@@ -11,6 +11,9 @@ export default function Chat(props) {
   const [msg, setMsg] = useState("");
   const [edit, setEdit] = useState(false);
   const [det, setDet] = useState({});
+  const [emoji, setEmoji] = useState(false);
+  const emojiRef = useRef();
+
   useEffect(() => {
     AOS.init({ duration: 1000 });
   }, []);
@@ -18,6 +21,18 @@ export default function Chat(props) {
   useEffect(() => {
     getChats();
   }, [props.uid, props.fid]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (emojiRef.current && !emojiRef.current.contains(event.target)) {
+        setEmoji(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   function getChats() {
     fetch(`${url}/getchats`, {
@@ -41,7 +56,7 @@ export default function Chat(props) {
       })
       .catch((err) => {
         alert(err);
-        console.log("error : " + err);
+        console.log("Chat.jsx->Error on geting chats : " + err);
       });
   }
 
@@ -54,20 +69,20 @@ export default function Chat(props) {
       body: JSON.stringify({ id: id, fromphone: fromphone, tophone: tophone }),
     })
       .then((response) => {
-        if (response.status == 201) {
+        if (response.status === 201) {
           return response.json();
-        } else if (response.status === 500) {
-          return Promise.reject("Error");
         }
+        return response.json().then((data) => {
+          return Promise.reject(data.message);
+        });
       })
       .then((data) => {
-        alert("Chat Deleted successfully");
-        console.log(data);
+        props.popUp("Chat Deleted Successfully");
         getChats();
       })
       .catch((err) => {
         alert(err);
-        console.log("Chat.jsx->Chat delete Error: " + err);
+        console.log("Chat.jsx->Error on deleting chat: " + err);
       });
   }
 
@@ -105,6 +120,9 @@ export default function Chat(props) {
         det={det}
         edit={edit}
         onChecked={getChats}
+        emoji={emoji}
+        setEmoji={setEmoji}
+        emojiRef={emojiRef}
       />
     </div>
   );

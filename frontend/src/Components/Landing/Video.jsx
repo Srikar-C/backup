@@ -25,7 +25,6 @@ export default function Video() {
         muted
         autoPlay
         loop
-        // controls
         className="mt-[10vh] rounded-lg"
         data-aos="fade-left"
       >

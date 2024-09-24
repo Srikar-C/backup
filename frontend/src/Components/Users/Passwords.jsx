@@ -26,7 +26,6 @@ export default function Password() {
     setSpin(true);
     setTimeout(() => {
       if (pass === conf) {
-        console.log("Pass: " + pass + " email " + useremail);
         fetch(`${url}/changepassword`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -35,12 +34,12 @@ export default function Password() {
           .then((response) => {
             if (response.status === 201) {
               return response.json();
-            } else if (response.status === 500) {
-              return Promise.reject("Error");
             }
+            return response.json().then((data) => {
+              return Promise.reject(data.message);
+            });
           })
           .then((data) => {
-            console.log("Data is: " + data);
             setSpin(false);
             alert("Password changed successfully");
             navigate("/login");
@@ -48,7 +47,7 @@ export default function Password() {
           .catch((err) => {
             setSpin(false);
             alert(err);
-            console.log("Error is: " + err);
+            console.log("Passwords.jsx->Error on changing password: " + err);
           });
       } else {
         setSpin(false);

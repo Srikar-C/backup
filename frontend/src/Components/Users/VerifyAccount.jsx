@@ -21,12 +21,10 @@ export default function VerifyAccount() {
 
   function handleCheckOtp() {
     setSpin(true);
-    console.log("otp:-> " + otp + " number:-> " + number);
     setTimeout(() => {
       if (parseInt(otp) === parseInt(number)) {
         setSpin(false);
         alert("Verified");
-        console.log("Verify.jsx-> " + email);
         navigate("/login", { state: { useremail: email } });
       } else {
         setSpin(false);

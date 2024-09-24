@@ -40,7 +40,7 @@ export default function AddFriend(props) {
       })
       .catch((err) => {
         alert(err);
-        console.log("Error on adding friend: " + err);
+        console.log("AddFriend.jsx->Error on adding friend: " + err);
       });
   }
 
@@ -70,7 +70,7 @@ export default function AddFriend(props) {
       })
       .catch((err) => {
         alert(err);
-        console.log("Error on request friend: " + err);
+        console.log("AddFriend.jsx->Error on request friend: " + err);
       });
   }
 
@@ -104,7 +104,7 @@ export default function AddFriend(props) {
           })
           .catch((err) => {
             alert(err);
-            console.log("Error on checking friend: " + err);
+            console.log("AddFriend.jsx->Error on checking friend: " + err);
           });
       } else {
         alert("Phone Number should contain 10 digits");

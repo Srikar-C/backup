@@ -27,7 +27,6 @@ export default function Register() {
   function handleRegistration() {
     setSpin(true);
     setTimeout(() => {
-      console.log("Registration Started");
       fetch(`${url}/register`, {
         method: "POST",
         headers: {
@@ -49,7 +48,6 @@ export default function Register() {
           });
         })
         .then((data) => {
-          console.log("Data is: " + data);
           setName("");
           setEmail("");
           setPhone("");
@@ -85,14 +83,14 @@ export default function Register() {
               .catch((err) => {
                 setSpin(false);
                 alert(err);
-                console.log("Error: " + err);
+                console.log("Register.jsx->Error on sending OTP: " + err);
               });
           }, 5000);
         })
         .catch((err) => {
           setSpin(false);
           alert(err);
-          console.log("Error is: " + err);
+          console.log("Register.jsx->Error on regsitering: " + err);
         });
     }, 5000);
   }
@@ -130,7 +128,7 @@ export default function Register() {
       ) : (
         ""
       )}
-      <Link to="/register">
+      <Link to="/">
         <span className="absolute top-10 left-20 text-6xl">
           <IoMdArrowRoundBack />
         </span>

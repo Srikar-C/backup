@@ -16,9 +16,8 @@ export default function Search(props) {
 
   function handleSort(e) {
     const value = e.target.value;
-    setSearch(value); // Update the state
-    console.log("Search: " + value);
-    props.map(value); // Use the current value directly
+    setSearch(value);
+    props.map(value);
   }
 
   return (

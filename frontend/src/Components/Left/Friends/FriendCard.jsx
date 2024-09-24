@@ -29,7 +29,6 @@ export default function FriendCard(props) {
         });
       })
       .then((data) => {
-        console.log("Pin Changed" + data.pin);
         if (data.pin === true) {
           setPin(true);
         } else {
@@ -39,7 +38,7 @@ export default function FriendCard(props) {
       })
       .catch((err) => {
         alert(err);
-        console.log("Error is: " + err);
+        console.log("FriendCard.jsx->Error is: " + err);
       });
   }
 
@@ -66,12 +65,11 @@ export default function FriendCard(props) {
         });
       })
       .then((data) => {
-        console.log("Friend deleted");
         props.onChecked();
       })
       .catch((err) => {
         alert(err);
-        console.log("Error is: " + err);
+        console.log("FriendCard.jsx->Error is: " + err);
       });
   }
 

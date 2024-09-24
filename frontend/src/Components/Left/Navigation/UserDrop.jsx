@@ -16,7 +16,7 @@ export default function UserDrop(props) {
     setAnchorEl(null);
   };
   return (
-    <div className="w-[50px]">
+    <div className="w-[80px]">
       <Button
         id="fade-button"
         aria-controls={open ? "fade-menu" : undefined}

@@ -13,8 +13,6 @@ const db = new pg.Client({
   user: "postgres",
   database: "whatsappnew",
   password: "tiger",
-  // connectionString:
-  //   "postgresql://whatsappnew_owner:FI5afMPQAhx2@ep-blue-wind-a579cx4h.us-east-2.aws.neon.tech/whatsappnew?sslmode=require",
 });
 
 db.connect();
@@ -69,11 +67,11 @@ app.get("/", (req, res) => {
     if (err) {
       console.log(err.message);
     } else {
-      console.log("Send Chat Table Created Successfully");
+      console.log("Chat Table Created Successfully");
     }
   });
 
-  const dailyLogin = `CREATE TABLE ${dailyTable}(id serial primary key,uid integer,fid integer, date varchar(2),month varchar(20),year varchar(10),chatted boolean DEFAULT false);`;
+  const dailyLogin = `CREATE TABLE ${dailyTable}(id serial primary key,uphone varchar(10),fphone varchar(10), date varchar(2),month varchar(20),year varchar(10),chatted boolean DEFAULT false);`;
   db.query(dailyLogin, (err, result) => {
     if (err) {
       console.log(err.message);
@@ -88,40 +86,64 @@ app.get("/", (req, res) => {
 //Register User
 app.post("/register", (req, res) => {
   const { useremail, userphone, userpassword, username } = req.body;
+  if (userphone.length != 10) {
+    res.status(400).send({ message: "Enter 10 digit Phone Number" });
+  }
   console.log(
     `Registering User Details are:\nUseremail->${useremail}\nUserphone->${userphone}\nUserpassword->${userpassword}\nUsername->${username}`
   );
-  const checkReg = `SELECT * FROM ${userTable} where useremail = $1 or userphone = $2;`;
+  const checkReg = `SELECT * FROM ${userTable} where useremail = $1 and userphone = $2;`;
   db.query(checkReg, [useremail, userphone], (err, response) => {
     if (err) {
       console.log(err.message);
       res.status(500).send({ message: err.message });
     } else if (response.rows.length > 0) {
-      console.log(
-        `${useremail} or ${userphone} is already Registered, Please Login`
-      );
       res.status(303).send({
-        message: `${useremail} or ${userphone} is already Registered, Please Login`,
+        message: `${useremail} and ${userphone} is already Registered, Please Login`,
       });
     } else if (response.rows.length === 0) {
-      if (userphone.length !== 10) {
-        console.log("Invalid Phone Number");
-        res.status(400).send({ message: "Invalid Phone Number" });
-      }
-      const regQuery = `INSERT INTO ${userTable} (username,useremail,userphone,userpassword) VALUES ($4,$1,$2,$3) RETURNING *;`;
-      db.query(
-        regQuery,
-        [useremail, userphone, userpassword, username],
-        (error, result) => {
-          if (error) {
-            console.log(error.message);
-            res.status(500).send({ message: error.message });
-          } else {
-            console.log("User Registered successfully");
-            res.status(201).send(result.rows[0]);
-          }
+      const mailCheck = `SELECT * FROM ${userTable} where useremail = $1;`;
+      db.query(mailCheck, [useremail], (error, result) => {
+        if (error) {
+          console.log(error.message);
+          res.status(500).send({ message: error.message });
+        } else if (result.rows.length > 0) {
+          res.status(303).send({
+            message: `${useremail} is already Registered, Please Login`,
+          });
+        } else {
+          const phoneCheck = `SELECT * FROM ${userTable} where userphone = $1;`;
+          db.query(phoneCheck, [userphone], (error, result) => {
+            if (error) {
+              console.log(error.message);
+              res.status(500).send({ message: error.message });
+            } else if (result.rows.length > 0) {
+              res.status(303).send({
+                message: `${userphone} is already Registered, Please Login`,
+              });
+            } else {
+              if (userphone.length !== 10) {
+                res
+                  .status(400)
+                  .send({ message: "Enter 10 digit Phone Number" });
+              }
+              const regQuery = `INSERT INTO ${userTable} (username,useremail,userphone,userpassword) VALUES ($4,$1,$2,$3) RETURNING *;`;
+              db.query(
+                regQuery,
+                [useremail, userphone, userpassword, username],
+                (error, result) => {
+                  if (error) {
+                    console.log(error.message);
+                    res.status(500).send({ message: error.message });
+                  } else {
+                    res.status(201).send(result.rows[0]);
+                  }
+                }
+              );
+            }
+          });
         }
-      );
+      });
     }
   });
 });
@@ -139,20 +161,16 @@ app.post("/login", (req, res) => {
       console.log(err.message);
       res.status(500).send({ message: err.message });
     } else if (userphone.length !== 10) {
-      console.log("Invalid Phone Number");
       res.status(400).send({ message: "Invalid Phone Number" });
     } else if (response.rows.length === 0) {
-      console.log(`${userphone} is not an Existing User, Please register`);
       res.status(404).send({
         message: `${userphone} is not an Existing User, Please register`,
       });
     } else if (response.rows.length > 0) {
       const { userpassword: hashedPassword } = response.rows[0];
       if (userpassword === hashedPassword) {
-        console.log("User Logged In successfully");
         res.status(201).send(response.rows[0]);
       } else {
-        console.log("Incorrect Password");
         res.status(401).send({ message: "Incorrect Password" });
       }
     }
@@ -168,7 +186,6 @@ app.post("/send-email", (req, res) => {
       console.log(err.message);
       res.status(500).send({ message: err.message });
     } else if (result.rows.length > 0) {
-      console.log(`Sending OTP to registered email ${to}`);
       const transporter = nodemailer.createTransport({
         service: "Gmail",
         auth: {
@@ -206,7 +223,6 @@ app.post("/send-email", (req, res) => {
 //Changing Passwords
 app.post("/changepassword", (req, res) => {
   const { useremail, password } = req.body;
-  console.log("Changing Password");
   const changeQuery = `UPDATE ${userTable} SET userpassword=$2 where useremail=$1 RETURNING *;`;
   db.query(changeQuery, [useremail, password], (err, result) => {
     if (err) {
@@ -222,19 +238,16 @@ app.post("/changepassword", (req, res) => {
 //Check Friend
 app.post("/checkfriend", (req, res) => {
   const { userphone, friendphone } = req.body;
-  console.log("Checking Friend");
   const checkFriendQuery = `SELECT * FROM ${userTable} where userphone=$1;`;
   db.query(checkFriendQuery, [userphone], (err, result) => {
     if (err) {
       console.log(err.message);
       res.status(500).send({ message: err.message });
     } else if (result.rows.length === 0) {
-      console.log("User not found");
       res
         .status(404)
         .send({ message: "User don't have account to communicate with you." });
     } else {
-      console.log("Friend found");
       const alreadyFriend = `SELECT * FROM ${friendTable} where userphone=$2 and friendphone=$1;`;
       db.query(alreadyFriend, [userphone, friendphone], (error, response) => {
         if (error) {
@@ -243,7 +256,6 @@ app.post("/checkfriend", (req, res) => {
         } else if (response.rows.length === 0) {
           res.status(201).send(result.rows[0]);
         } else {
-          console.log("Friend");
           res
             .status(303)
             .send({ message: "You have another friend with same number" });
@@ -256,14 +268,12 @@ app.post("/checkfriend", (req, res) => {
 //Add Friend
 app.post("/addfriend", (req, res) => {
   const { uid, uname, uphone, fname, fphone } = req.body;
-  console.log("Adding New Friend->" + uname);
   const addQuery = `INSERT INTO ${friendTable} (userid,username,userphone,friendname,friendphone) VALUES ($1,$2,$3,$4,$5) RETURNING *;`;
   db.query(addQuery, [uid, uname, uphone, fname, fphone], (err, result) => {
     if (err) {
       console.log(err.message);
       res.status(500).send({ message: err.message });
     } else {
-      console.log("Friend Added successfully");
       res.status(201).send(result.rows[0]);
     }
   });
@@ -272,7 +282,6 @@ app.post("/addfriend", (req, res) => {
 //Request Friend
 app.post("/requestfriend", (req, res) => {
   const { fromname, fromphone, toname, tophone } = req.body;
-  console.log("Request Send to->" + toname + " From->" + fromname);
   const requestQuery = `INSERT INTO ${requestTable} (fromname,fromphone,toname,tophone) VALUES ($1,$2,$3,$4) RETURNING *;`;
   db.query(
     requestQuery,
@@ -292,7 +301,6 @@ app.post("/requestfriend", (req, res) => {
 //Check Request
 app.post("/checkrequest", (req, res) => {
   const { phone } = req.body;
-  console.log("Checking Friend Request");
   const checkRequestQuery = `SELECT * FROM ${requestTable} WHERE tophone=$1;`;
   db.query(checkRequestQuery, [phone], (err, result) => {
     if (err) {
@@ -312,7 +320,6 @@ app.post("/checkrequest", (req, res) => {
 app.post("/acceptreq", (req, res) => {
   const { uid, username, userphone, friendname, friendphone, status } =
     req.body;
-  console.log("Accepting Friend Requests");
 
   const acceptreq = `INSERT INTO ${friendTable} (userid, username, userphone,friendname, friendphone, status) VALUES($1,$2,$3,$4,$5,$6) RETURNING *;`;
   db.query(
@@ -333,7 +340,6 @@ app.post("/acceptreq", (req, res) => {
 //Remove Request
 app.post("/removereq", (req, res) => {
   const { rid } = req.body;
-  console.log("Removing Friend Request");
   const removeQuery = `DELETE from ${requestTable} WHERE rid=$1;`;
   db.query(removeQuery, [rid], (err, result) => {
     if (err) {
@@ -349,8 +355,6 @@ app.post("/removereq", (req, res) => {
 //Update Request
 app.post("/updatereq", (req, res) => {
   const { userphone, friendphone } = req.body;
-  console.log("Updating Status of Accept" + userphone, friendphone);
-  console.log(userphone, friendphone);
   const updateQuery = `UPDATE ${friendTable} SET status='2' WHERE userphone=$1 AND friendphone=$2 RETURNING *;`;
   db.query(updateQuery, [userphone, friendphone], (err, result) => {
     if (err) {
@@ -366,7 +370,6 @@ app.post("/updatereq", (req, res) => {
 //Change Request
 app.post("/changereq", (req, res) => {
   const { userphone, friendphone } = req.body;
-  console.log("Changing Status to Reject->", userphone, friendphone);
   const updateQuery = `UPDATE ${friendTable} SET status='0' WHERE userphone=$1 AND friendphone=$2 RETURNING *;`;
   db.query(updateQuery, [userphone, friendphone], (err, result) => {
     if (err) {
@@ -382,7 +385,6 @@ app.post("/changereq", (req, res) => {
 //Get Friends of respective user
 app.post("/getfriends", (req, res) => {
   const { uid } = req.body;
-  console.log("Getting Friends of user " + uid);
   const getFriendsQuery = `SELECT * FROM ${friendTable} WHERE userid=$1 order by pin desc;`;
   db.query(getFriendsQuery, [uid], (err, result) => {
     if (err) {
@@ -398,7 +400,6 @@ app.post("/getfriends", (req, res) => {
 //Change Pin
 app.post("/changepin", (req, res) => {
   const { fid, uid } = req.body;
-  console.log("Changing pin of friend ", fid, " of user ", uid);
   const pinQuery = `UPDATE ${friendTable} SET pin=NOT pin WHERE fid=$1 and userid=$2 RETURNING *;`;
   db.query(pinQuery, [fid, uid], (err, result) => {
     if (err) {
@@ -414,7 +415,6 @@ app.post("/changepin", (req, res) => {
 //Delete Friend
 app.delete("/deletefriend_chat", (req, res) => {
   const { phone1, phone2, uid, fid, status } = req.body;
-  console.log("Deleting Friend and their Chats", phone1, phone2);
   if (status !== "2") {
     const deleteQuery = `DELETE FROM ${friendTable} WHERE fid=$1 and userid=$2 RETURNING *;`;
     db.query(deleteQuery, [fid, uid], (err, result) => {
@@ -422,7 +422,7 @@ app.delete("/deletefriend_chat", (req, res) => {
         console.log(err.message);
         res.status(500).send({ message: err.message });
       } else {
-        console.log("Friend deleted successfully");
+        console.log("Deleted friend and chats successfully");
         res.status(201).send({ message: "DELETION DONE" });
       }
     });
@@ -433,7 +433,6 @@ app.delete("/deletefriend_chat", (req, res) => {
         console.log(err.message);
         res.status(500).send({ message: "Error in Deleting Chat" });
       } else {
-        console.log("Chat deleted successfully");
         const check = `SELECT * FROM ${friendTable} where fid=$1 and userid=$2;`;
         db.query(check, [fid, uid], (err, response) => {
           if (err) {
@@ -450,7 +449,6 @@ app.delete("/deletefriend_chat", (req, res) => {
             console.log(err.message);
             res.status(500).send({ message: err.message });
           } else {
-            console.log("Friend deleted successfully");
             const updateQuery = `UPDATE ${friendTable} SET status='3' WHERE userphone=$2 AND friendphone=$1 RETURNING *;`;
             db.query(updateQuery, [phone1, phone2], (error, resp) => {
               if (error) {
@@ -472,7 +470,6 @@ app.delete("/deletefriend_chat", (req, res) => {
 app.post("/sendmsg", (req, res) => {
   const { uid, fid, fromphone, tophone, message, hours, minutes, seconds } =
     req.body;
-  console.log("Sending Messages to ", tophone, " from ", fromphone);
   const sendMsgQuery = `INSERT INTO ${chatTable} (uid,fid,fromphone, tophone, message,hours,minutes,seconds) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *;`;
   db.query(
     sendMsgQuery,
@@ -492,14 +489,13 @@ app.post("/sendmsg", (req, res) => {
 //Get Messages
 app.post("/getchats", (req, res) => {
   const { phone1, phone2 } = req.body;
-  console.log("Getting chats of ", phone1 + " " + phone2);
   const recMsgQuery = `SELECT * FROM ${chatTable} WHERE (fromphone=$1 and tophone=$2) or (fromphone=$2 and tophone=$1) order by id;`;
   db.query(recMsgQuery, [phone1, phone2], (err, result) => {
     if (err) {
       console.log(err.message);
       res.status(500).send({ message: err.message });
     } else {
-      console.log("Got Message successfully" + result.rows);
+      console.log("Get Message successfully" + result.rows);
       res.status(201).send(result.rows);
     }
   });
@@ -508,14 +504,13 @@ app.post("/getchats", (req, res) => {
 //Rename User
 app.post("/rename", (req, res) => {
   const { uid, fid, value } = req.body;
-  console.log("Renaming friend name");
   const renameQuery = `UPDATE ${friendTable} SET friendname=$3 where userid=$1 and fid=$2 RETURNING *;`;
   db.query(renameQuery, [uid, fid, value], (err, result) => {
     if (err) {
       console.log(err.message);
       return res.status(500).send({ message: err.message });
     } else {
-      // console.log("Friend renamed successfully");
+      console.log("Friend renamed successfully");
       return res.status(201).json(result.rows[0]);
     }
   });
@@ -524,14 +519,13 @@ app.post("/rename", (req, res) => {
 //Delete Chat
 app.delete("/deletechat", (req, res) => {
   const { id, fromphone, tophone } = req.body;
-  console.log("Deleting particular chat");
   const deleteQuery = `DELETE FROM ${chatTable} where id=$1 and fromphone=$2 and tophone=$3;`;
   db.query(deleteQuery, [id, fromphone, tophone], (err, result) => {
     if (err) {
       console.log(err.message);
       res.status(500).send({ message: err.message });
     } else {
-      // console.log("Chat deleted successfully");
+      console.log("Chat deleted successfully");
       res.status(201).send({ message: "Friend Deleted" });
     }
   });
@@ -540,7 +534,6 @@ app.delete("/deletechat", (req, res) => {
 //Edit Chat
 app.post("/editmsg", (req, res) => {
   const { id, fromphone, tophone, message } = req.body;
-  console.log("Update Particular Chat");
   const updatechatQuery = `UPDATE ${chatTable} SET message=$4 where id=$1 and fromphone=$2 and tophone=$3;`;
   db.query(
     updatechatQuery,
@@ -550,7 +543,7 @@ app.post("/editmsg", (req, res) => {
         console.log(err.message);
         res.status(500).send({ message: err.message });
       } else {
-        // console.log("Update chat successful");
+        console.log("Update chat successful");
         res.status(201).json({ message: "Updated chat" });
       }
     }
@@ -560,7 +553,6 @@ app.post("/editmsg", (req, res) => {
 //Update user name
 app.post("/nameupdate", (req, res) => {
   const { id, name } = req.body;
-  console.log("Updataing User Name");
   const nameQuery = `UPDATE ${userTable} SET username=$2 where userid=$1;`;
   db.query(nameQuery, [id, name], (err, result) => {
     if (err) {
@@ -576,7 +568,6 @@ app.post("/nameupdate", (req, res) => {
 //Update user wmail
 app.post("/emailupdate", (req, res) => {
   const { id, email } = req.body;
-  console.log("Updating User Email");
   const emailQuery = `UPDATE ${userTable} SET useremail=$2 where userid=$1;`;
   db.query(emailQuery, [id, email], (err, result) => {
     if (err) {
@@ -591,7 +582,6 @@ app.post("/emailupdate", (req, res) => {
 //Update user password
 app.post("/passupdate", (req, res) => {
   const { id, pass } = req.body;
-  console.log("Updating user password");
   const passQuery = `UPDATE ${userTable} SET userpassword=$2 where userid=$1;`;
   db.query(passQuery, [id, pass], (err, result) => {
     if (err) {
@@ -607,14 +597,13 @@ app.post("/passupdate", (req, res) => {
 //Get user
 app.post("/getuser", (req, res) => {
   const { uid } = req.body;
-  console.log("Getting User Details");
   const getQuery = `SELECT * FROM ${userTable} where userid=$1;`;
   db.query(getQuery, [uid], (err, result) => {
     if (err) {
       console.log(err.message);
       res.status(500).send({ message: err.message });
     } else {
-      console.log("User retrieved successfully" + result.rows[0]);
+      console.log("User retrieved successfully");
       res.status(201).send(result.rows[0]);
     }
   });
@@ -622,7 +611,7 @@ app.post("/getuser", (req, res) => {
 
 //set daily
 app.post("/setdaily", (req, res) => {
-  const { uid, fid } = req.body;
+  const { uphone, fphone } = req.body;
   const day = new Date();
   const date = day.getDate();
   const month = day.getMonth();
@@ -642,24 +631,20 @@ app.post("/setdaily", (req, res) => {
     "December",
   ];
   const monthName = months[month];
-  const checkDaily = `SELECT * FROM ${dailyTable} where uid=$1 and fid=$2 and date=$3 and month=$4;`;
-  db.query(checkDaily, [uid, fid, date, monthName], (err, result) => {
+  const checkDaily = `SELECT * FROM ${dailyTable} where ((uphone=$1 and fphone=$2) or (uphone=$2 and fphone=$1)) and date=$3 and month=$4;`;
+  db.query(checkDaily, [uphone, fphone, date, monthName], (err, result) => {
     if (err) {
-      console.log("Error checking data: ", err.message);
       res.status(500).send({ message: "Error checking data" });
     } else {
       if (result.rows.length === 0) {
-        console.log("No data found. Inserting data.");
-        const dailyQuery = `INSERT INTO ${dailyTable} (uid,fid,date, month, year) VALUES ($1, $2, $3,$4,$5) RETURNING *`;
+        const dailyQuery = `INSERT INTO ${dailyTable} (uphone,fphone,date, month, year) VALUES ($1, $2, $3,$4,$5) RETURNING *`;
         db.query(
           dailyQuery,
-          [uid, fid, date, monthName, year],
+          [uphone, fphone, date, monthName, year],
           (err, result) => {
             if (err) {
-              console.log("Error inserting data: ", err.message);
               res.status(500).send({ message: "Error inserting data" });
             } else {
-              console.log("Data inserted successfully:", result.rows[0]);
               res.status(201).send({
                 message: "Data inserted successfully",
                 data: result.rows[0],
@@ -674,94 +659,88 @@ app.post("/setdaily", (req, res) => {
   });
 });
 
-//update daily
-app.post("/updatedaily", (req, res) => {
-  const { uid, fid, date, month } = req.body;
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  const monthName = months[month];
-  console.log("update daily: ", uid, fid, date, month, monthName);
-  const checkUpdate = `SELECT * FROM ${dailyTable} WHERE uid=$1 and fid=$2 and date=$3 and month=$4 ;`;
-  db.query(checkUpdate, [uid, fid, date, monthName], (err, result) => {
-    if (err) {
-      console.log("Error checking data: ", err.message);
-      res.status(500).send({ message: "Error checking data" });
-    } else {
-      if (!result.rows[0].chatted) {
-        const updateQuery = `UPDATE ${dailyTable} SET chatted=true where uid=$1 and fid=$2 and date=$3 and month=$4;`;
-        db.query(updateQuery, [uid, fid, date, monthName], (err, result) => {
-          if (err) {
-            console.log("update: " + err.message);
-            res.status(500).send({ message: err.message });
-          } else {
-            console.log("Data updated successfully");
-            res.status(201).send({ message: "Data updated successfully" });
-          }
-        });
-      } else {
-        res.status(201).send({ message: "Data successfully" });
-      }
-    }
-  });
-});
-
-//get daily
-app.post("/getdaily", (req, res) => {
-  const { uid, fid } = req.body;
-  const date = new Date();
-  const day = date.getDate();
-  const month = date.getMonth();
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  const monthName = months[month];
-  const getQuery = `SELECT * FROM ${dailyTable} where uid=$1 and fid=$2 and date=$3 and month=$4;`;
-  db.query(getQuery, [uid, fid, day, monthName], (err, result) => {
-    if (err) {
-      console.log("Error retrieving data: ", err.message);
-      res.status(500).send({ message: "Error retrieving data" });
-    } else {
-      console.log("Data retrieved successfully" + result.rows[0]);
-      res.status(201).send(result.rows[0]);
-    }
-  });
-});
 //check daily
 app.post("/checkdaily", (req, res) => {
-  const { uid, fid } = req.body;
-  const checkQuery = `SELECT chatted FROM ${dailyTable} WHERE uid=$1 and fid=$2;`;
-  db.query(checkQuery, [uid, fid], (err, result) => {
-    if (err) {
-      console.log(err.message);
-      res.status(500).send({ message: err.message });
-    } else {
-      console.log("Data retrieved successfully" + result.rows[0]);
-      res.status(201).send(result.rows[0]);
+  const {
+    uid,
+    fid,
+    day,
+    month,
+    year,
+    fromphone,
+    tophone,
+    hours,
+    minutes,
+    seconds,
+  } = req.body;
+
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  const monthName = months[month];
+
+  const checkQuery = `
+    SELECT chatted FROM ${dailyTable} 
+    WHERE ((uphone=$1 AND fphone=$2) OR (uphone=$2 AND fphone=$1))
+      AND date=$3 AND month=$4 AND year=$5;
+  `;
+
+  db.query(
+    checkQuery,
+    [fromphone, tophone, day, monthName, year],
+    (err, result) => {
+      if (err) {
+        console.log(err.message);
+        return res.status(500).send({ message: err.message });
+      }
+      if (result.rows.length > 0) {
+        if (result.rows[0].chatted === true) {
+          return res.status(201).send(result.rows[0]);
+        }
+      }
+      const message = "date:" + day + " " + monthName + " " + year;
+      const addChatQuery = `
+      INSERT INTO ${chatTable} (uid, fid, fromphone, tophone, message, hours, minutes, seconds)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+    `;
+
+      db.query(
+        addChatQuery,
+        [uid, fid, fromphone, tophone, message, hours, minutes, seconds],
+        (error, response) => {
+          if (error) {
+            console.log(error.message);
+            return res.status(500).send({ message: error.message });
+          }
+          const updateDailyQuery = `UPDATE ${dailyTable} SET chatted = true WHERE ((uphone=$1 AND fphone=$2) OR (uphone=$2 AND fphone=$1)) AND date=$3 AND month=$4 AND year=$5;`;
+          db.query(
+            updateDailyQuery,
+            [fromphone, tophone, day, monthName, year],
+            (updateErr, updateRes) => {
+              if (updateErr) {
+                console.log(updateErr.message);
+                return res.status(500).send({ message: updateErr.message });
+              }
+              return res.status(201).send({
+                message: "Chat added and daily table updated successfully",
+              });
+            }
+          );
+        }
+      );
     }
-  });
+  );
 });
 
 app.get("/users", (req, res) => {

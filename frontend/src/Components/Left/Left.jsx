@@ -44,11 +44,11 @@ export default function Left(props) {
       })
       .then((data) => {
         setFriends(data);
-        setFilteredFriends(data); // Initialize both lists
+        setFilteredFriends(data);
       })
       .catch((err) => {
         alert(err);
-        console.log("Error on getting Friends: " + err);
+        console.log("Left.jsx->Error on getting Friends: " + err);
       });
   }
 
@@ -63,22 +63,19 @@ export default function Left(props) {
       .then((response) => {
         if (response.status === 201) {
           return response.json();
-        } else if (response.status === 404) {
-          setRequest(false);
         }
         return response.json().then((data) => {
           return Promise.reject(data.message);
         });
       })
       .then((data) => {
-        console.log("Friend Request: ");
         setRequest(true);
         setReqFriends(data);
       })
       .catch((err) => {
         if (err !== "No Friend Request found") {
           alert(err);
-          console.log("Error is: " + err);
+          console.log("Left.jsx->Error: " + err);
         }
       });
   }
@@ -94,20 +91,13 @@ export default function Left(props) {
       .then((response) => {
         if (response.status === 201) {
           return response.json();
-        } else if (response.status === 500) {
-          return Promise.reject("Error");
         }
+        return response.json().then((data) => {
+          return Promise.reject(data.message);
+        });
       })
       .then((data) => {
-        alert("Renamed Successfully");
-        console.log(
-          "Left.jsx->Data: " +
-            data.id +
-            " " +
-            data.friendphone +
-            " " +
-            data.friendname
-        );
+        props.popUp("Renamed Successfully");
         getFriends();
         props.chatRoom(
           data.id,
@@ -154,7 +144,6 @@ export default function Left(props) {
           setSearch(!search);
         }}
       />
-      <hr />
       {search && <Search map={sortFriends} />}
       {request ? (
         <div

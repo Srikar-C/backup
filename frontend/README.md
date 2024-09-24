@@ -73,7 +73,12 @@ whatsappweb
 
 </pre>
 
-<h2><u>How to run the project in your system</u>
+<h2>Prerequisites</h2>
+Install
+<a href="https://www.postgresql.org/download/" target="_blank">PostgreSQL</a>
+<a href="https://nodejs.org/en" target="_blank">NodeJS</a>
+
+<h2><u>How to run the project in your system</u></h2>
 Clone the repo
   <h3>Run frontend</h3>
   <ul>
@@ -87,5 +92,6 @@ Clone the repo
     <li>node database.js</li>
     <li>Exit from terminal if database created</li>
     <li>nodemon server.js</li>
+      <li><b>Note:</b> Make sure to change the password in server.js and database.js.</li>
   </ul>
 </h2>

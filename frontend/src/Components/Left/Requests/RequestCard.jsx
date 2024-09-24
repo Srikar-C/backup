@@ -27,11 +27,11 @@ export default function RequestCard(props) {
         });
       })
       .then((data) => {
-        console.log("Request Accepted");
+        console.log("RequestCard.jsx->Request Accepted");
       })
       .catch((err) => {
         alert(err);
-        console.log("Error in requesting: " + err);
+        console.log("RequestCard.jsx->Error in accepting request: " + err);
       });
   }
 
@@ -52,11 +52,11 @@ export default function RequestCard(props) {
         });
       })
       .then((data) => {
-        console.log("Request Deleted");
+        console.log("RequestCard.jsx->Request Deleted");
       })
       .catch((err) => {
         alert(err);
-        console.log("Error in requesting: " + err);
+        console.log("RequestCard.jsx->Error in deleting request: " + err);
       });
   }
 
@@ -78,11 +78,11 @@ export default function RequestCard(props) {
         });
       })
       .then((data) => {
-        console.log("Request Updated");
+        console.log("RequestCard.jsx->Request Updated");
       })
       .catch((err) => {
         alert(err);
-        console.log("Error in requesting: " + err);
+        console.log("RequestCard.jsx->Error in updating request: " + err);
       });
   }
 
@@ -104,11 +104,11 @@ export default function RequestCard(props) {
         });
       })
       .then((data) => {
-        console.log("Request Updated");
+        console.log("RequestCard.jsx->Request Changed");
       })
       .catch((err) => {
         alert(err);
-        console.log("Error in requesting: " + err);
+        console.log("RequestCard.jsx->Error in changing request: " + err);
       });
   }
 

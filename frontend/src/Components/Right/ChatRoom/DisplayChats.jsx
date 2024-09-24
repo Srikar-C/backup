@@ -1,12 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import ChatDrop from "./ChatDrop";
+import "../../../App.css";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import url from "../../../url";
 
 export default function DisplayChats(props) {
   const chatContainerRef = useRef(null);
-  const [head, setHead] = useState(false);
 
   useEffect(() => {
     AOS.init({ duration: 1000 });
@@ -19,62 +18,23 @@ export default function DisplayChats(props) {
     }
   }, [props.chats]);
 
-  const date = new Date();
-  const day = date.getDate();
-  const month = date.getMonth();
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  const monthName = months[month];
-  const year = date.getFullYear();
-
-  useEffect(() => {
-    fetch(`${url}/getdaily`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ uid: props.uid, fid: props.fid }),
-    })
-      .then((response) => {
-        if (response.status === 201) {
-          return response.json();
-        }
-        return response.json().then((data) => {
-          return Promise.reject(data.message);
-        });
-      })
-      .then((data) => {
-        setHead(data.chatted);
-      })
-      .catch((err) => {
-        alert(err);
-        console.log("Error in getting daily head: " + err);
-      });
-  }, [1000]);
-
   return (
     <div ref={chatContainerRef} className="h-[80vh] overflow-y-auto pt-1">
-      {head && (
-        <div className="flex items-center">
-          <p>{day}</p>
-          <p>{monthName}</p>
-          <p>{year}</p>
-        </div>
-      )}
       {props.chats?.map((item) => {
-        if (item.fromphone === props.uphone) {
+        if (item.message.substring(0, 5) === "date:") {
+          return (
+            <div
+              className="flex justify-center items-center w-full"
+              key={item.id}
+            >
+              <div
+                className={`shadow border-2 border-black rounded-xl justify-center text-[#4F200D] bg-[#FFD93D] py-1 px-3`}
+              >
+                {item.message.substring(5)}
+              </div>
+            </div>
+          );
+        } else if (item.fromphone === props.uphone) {
           return (
             <div
               key={item.id}

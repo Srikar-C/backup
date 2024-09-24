@@ -43,7 +43,6 @@ export default function Login() {
           });
         })
         .then((data) => {
-          console.log("Data is: " + data);
           setPhone("");
           setPass("");
           setSpin(false);
@@ -61,7 +60,7 @@ export default function Login() {
         .catch((err) => {
           setSpin(false);
           alert(err);
-          console.log("Error is: " + err);
+          console.log("Login.jsx->Error on logging: " + err);
         });
     }, 5000);
   }

@@ -7,6 +7,7 @@ import Account from "./Right/Account";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import url from "../url.jsx";
+import "../App.css";
 
 export default function Dashboard() {
   const location = useLocation();
@@ -17,6 +18,8 @@ export default function Dashboard() {
   const [uphone, setUPhone] = useState(phone);
   const [upassword, setUPassword] = useState(password);
   const [right, setRight] = useState(<Right />);
+  const [pop, setPop] = useState("");
+  const [dialog, setDialog] = useState(false);
 
   useEffect(() => {
     AOS.init({ duration: 1000 });
@@ -41,7 +44,7 @@ export default function Dashboard() {
           return response.json();
         }
         return response.json().then((data) => {
-          console.log(data);
+          return Promise.reject(data.message);
         });
       })
       .then((data) => {
@@ -61,7 +64,7 @@ export default function Dashboard() {
       })
       .catch((err) => {
         alert(err);
-        console.log("Error: " + err);
+        console.log("Dashboard.jsx->Error on Getting User Details: " + err);
       });
   }
 
@@ -75,6 +78,10 @@ export default function Dashboard() {
         fname={fname}
         fphone={fphone}
         status={status}
+        popUp={(data) => {
+          setPop(data);
+          setDialog(true);
+        }}
       />
     );
     fetch(`${url}/setdaily`, {
@@ -83,8 +90,8 @@ export default function Dashboard() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        uid: uid,
-        fid: fid,
+        uphone: uphone,
+        fphone: fphone,
       }),
     })
       .then((response) => {
@@ -96,13 +103,13 @@ export default function Dashboard() {
         });
       })
       .then((data) => {
-        console.log("daily entered");
+        console.log("Dashboard.jsx->daily entered");
       })
-      .catch((error) => {
-        if (error != "Data already inserted") {
-          alert(error);
+      .catch((err) => {
+        if (err != "Data already inserted") {
+          alert(err);
+          console.log("Dashboard.jsx->Error on setting daily: " + err);
         }
-        console.log("Error: " + error);
       });
   }
 
@@ -123,6 +130,25 @@ export default function Dashboard() {
 
   return (
     <div className="flex flex-row w-screen overflow-hidden">
+      {dialog && (
+        <div className="">
+          <div
+            className="absolute w-full h-full bg-white opacity-90 z-[50]"
+            onClick={() => setDialog(false)}
+          ></div>
+          <div
+            className={`shadow absolute flex flex-col top-1/2 left-1/2 transform z-[60] -translate-x-1/2 -translate-y-1/2 h-[100px] justify-center w-[30%] bg-white rounded-xl gap-4 border-2 border-black `}
+          >
+            <p className="text-center">{pop}</p>
+            <button
+              className="bg-[#FFD93D] w-fit justify-center mx-auto text-black px-4 py-1 rounded-md"
+              onClick={() => setDialog(false)}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
       <div className="w-[30%]" data-aos="fade-right">
         <Left
           uid={uid}
@@ -137,6 +163,10 @@ export default function Dashboard() {
           account={handleAccount}
           onRight={() => {
             setRight(<Right />);
+          }}
+          popUp={(data) => {
+            setPop(data);
+            setDialog(true);
           }}
         />
       </div>
