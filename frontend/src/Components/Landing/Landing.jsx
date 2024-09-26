@@ -12,7 +12,7 @@ export default function Landing() {
   }, []);
 
   return (
-    <div className="gradient-bg flex flex-col bg-[#F6F1E9] h-[135vh] overflow-x-hidden">
+    <div className="gradient-bg flex flex-col h-[165vh] overflow-x-hidden">
       <Navigation />
       <Video />
       <Chatting />

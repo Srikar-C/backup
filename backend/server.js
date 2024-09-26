@@ -8,14 +8,23 @@ const app = express();
 const port = 3000;
 
 const db = new pg.Client({
-  port: 5432,
-  host: "localhost",
-  user: "postgres",
-  database: "whatsappnew",
-  password: "tiger",
+  // port: 5432,
+  // host: "localhost",
+  // user: "postgres",
+  // database: "whatsappnew",
+  // password: "tiger",
+  connectionString:
+    "postgresql://whatsappnew_owner:VRd1ZNtIvq0s@ep-yellow-morning-a5v49e60.us-east-2.aws.neon.tech/whatsappnew?sslmode=require",
 });
 
-db.connect();
+db.connect((err) => {
+  if (err) {
+    console.error("Connection error", err.stack);
+  } else {
+    console.log("Connected to the database");
+  }
+});
+// db.connect();
 
 //Middlewares
 app.use(cors());
@@ -89,9 +98,6 @@ app.post("/register", (req, res) => {
   if (userphone.length != 10) {
     res.status(400).send({ message: "Enter 10 digit Phone Number" });
   }
-  console.log(
-    `Registering User Details are:\nUseremail->${useremail}\nUserphone->${userphone}\nUserpassword->${userpassword}\nUsername->${username}`
-  );
   const checkReg = `SELECT * FROM ${userTable} where useremail = $1 and userphone = $2;`;
   db.query(checkReg, [useremail, userphone], (err, response) => {
     if (err) {
@@ -151,10 +157,6 @@ app.post("/register", (req, res) => {
 //Login User
 app.post("/login", (req, res) => {
   const { userphone, userpassword } = req.body;
-  console.log(
-    `Logging User Details:\nUserphone->${userphone}\nUserpassword->${userpassword}`
-  );
-
   const checkLog = `SELECT * FROM ${userTable} where userphone = $1;`;
   db.query(checkLog, [userphone], (err, response) => {
     if (err) {
@@ -209,7 +211,6 @@ app.post("/send-email", (req, res) => {
           console.error(error);
           res.status(500).send({ message: error.message });
         } else {
-          console.log("Email sent: " + info.response);
           res.status(201).send({ message: "Email sent successfully" });
         }
       });
@@ -495,7 +496,7 @@ app.post("/getchats", (req, res) => {
       console.log(err.message);
       res.status(500).send({ message: err.message });
     } else {
-      console.log("Get Message successfully" + result.rows);
+      console.log("Get Message successfully");
       res.status(201).send(result.rows);
     }
   });

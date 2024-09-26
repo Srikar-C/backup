@@ -47,7 +47,7 @@ export default function Login() {
           setPass("");
           setSpin(false);
           alert("User Exist, Successfully logged in");
-          navigate("/dashboard", {
+          navigate(`/${data.username}`, {
             state: {
               id: data.userid,
               name: data.username,

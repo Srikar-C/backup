@@ -8,7 +8,7 @@ export default function Video() {
     AOS.init({ duration: 1000 });
   }, []);
   return (
-    <div className="video1 flex gap-10 justify-evenly items-center">
+    <div className="video1 flex gap-10 h-[90vh] justify-evenly items-center">
       <div
         className="text-3xl w-[30%] flex flex-col gap-4"
         data-aos="fade-right"

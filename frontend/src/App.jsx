@@ -19,7 +19,7 @@ function App() {
         <Route path="/verifypass" element={<VerifyPass />} />
         <Route path="/verifyacc" element={<VerifyAccount />} />
         <Route path="/changepassword" element={<Password />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/:username" element={<Dashboard />} />
       </Routes>
     </BrowserRouter>
   );

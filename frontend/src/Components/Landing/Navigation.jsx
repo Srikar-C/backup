@@ -17,17 +17,17 @@ export default function Navigation() {
       <div className="leftnav w-[20%]">
         <SiWhatsapp className="logo text-[#4F200D] text-4xl" />
       </div>
-      <div className="middlenav w-[35%]">
+      <div className="middlenav w-[30%]">
         <h1 className="font-bold text-[#4F200D] text-xl text-center uppercase">
           Whatsapp Web
         </h1>
       </div>
-      <div className="rightnav w-[20%] justify-center flex flex-row gap-28 *:px-3 *:py-1 *:rounded-lg *:cursor-pointer font-sans font-semibold *:text-[#4F200D] hover:*:text-[#F6F1E9] *:bg-[#F6F1E9] hover:*:bg-[#4F200D] hover:*:shadow-md *:border-2 *:border-[#4F200D] hover:*:border-[#F6F1E9]">
+      <div className="rightnav w-[25%] justify-center flex flex-row gap-28 *:px-3 *:py-1 *:rounded-lg *:cursor-pointer font-sans font-semibold *:text-[#4F200D] hover:*:text-[#F6F1E9] *:bg-[#F6F1E9] hover:*:bg-[#4F200D] hover:*:shadow-md *:border-2 *:border-[#4F200D] hover:*:border-[#F6F1E9] transition-all duration-1000">
         <Link to="/login">
-          <p className="w-[50%] text-center ">Login</p>
+          <p className="text-center ">Login</p>
         </Link>
         <Link to="/register">
-          <p className="w-[50%] text-center ">Register</p>
+          <p className="text-center ">Register</p>
         </Link>
       </div>
     </div>
