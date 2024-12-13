@@ -1,12 +1,23 @@
 import { useEffect, useState } from "react";
 import UserNav from "./Navigation/UserNav";
-import AddFriend from "./Friends/AddFriend";
+import AddFriend from "./Friends/AddFriend/AddFriend";
 import DisplayFriends from "./Friends/DisplayFriends";
 import DisplayRequests from "./Requests/DisplayRequests";
-import url from "../../url";
 import Search from "./Search";
+import { checkRequest, getFriends, handleRename } from "./utils";
 
-export default function Left(props) {
+export default function Left({
+  uid,
+  uname,
+  uemail,
+  uphone,
+  upassword,
+  chatRoom,
+  onChange,
+  displayUserDetails,
+  onRight,
+  popUp,
+}) {
   const [isadd, setAdd] = useState(false);
   const [search, setSearch] = useState(false);
   const [friends, setFriends] = useState([]);
@@ -26,126 +37,46 @@ export default function Left(props) {
     }
   }
 
-  function getFriends() {
-    fetch(`${url}/getfriends`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ uid: props.uid }),
-    })
-      .then((response) => {
-        if (response.status === 201) {
-          return response.json();
-        }
-        return response.json().then((data) => {
-          return Promise.reject(data.message);
-        });
-      })
-      .then((data) => {
-        setFriends(data);
-        setFilteredFriends(data);
-      })
-      .catch((err) => {
-        alert(err);
-        console.log("Left.jsx->Error on getting Friends: " + err);
-      });
-  }
-
-  function checkRequest() {
-    fetch(`${url}/checkrequest`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ phone: props.uphone }),
-    })
-      .then((response) => {
-        if (response.status === 201) {
-          return response.json();
-        }
-        return response.json().then((data) => {
-          return Promise.reject(data.message);
-        });
-      })
-      .then((data) => {
-        setRequest(true);
-        setReqFriends(data);
-      })
-      .catch((err) => {
-        if (err !== "No Friend Request found") {
-          alert(err);
-          console.log("Left.jsx->Error: " + err);
-        }
-      });
-  }
-
-  function handleRename(prop_uid, prop_fid, prop_value) {
-    fetch(`${url}/rename`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ uid: prop_uid, fid: prop_fid, value: prop_value }),
-    })
-      .then((response) => {
-        if (response.status === 201) {
-          return response.json();
-        }
-        return response.json().then((data) => {
-          return Promise.reject(data.message);
-        });
-      })
-      .then((data) => {
-        props.popUp("Renamed Successfully");
-        getFriends();
-        props.chatRoom(
-          data.id,
-          data.userid,
-          data.username,
-          data.userphone,
-          data.friendname,
-          data.friendphone,
-          data.status
-        );
-      })
-      .catch((err) => {
-        alert(err);
-        console.log("Left.jsx->Error: " + err);
-      });
+  function sortPhones(val) {
+    if (val === "") {
+      setFilteredFriends(friends);
+    } else {
+      const filtered = friends.filter((friend) =>
+        friend.friendphone.includes(val)
+      );
+      setFilteredFriends(filtered);
+    }
   }
 
   useEffect(() => {
-    getFriends();
-    checkRequest();
-  }, [props.uid]);
+    getFriends(uid, setFriends, setFilteredFriends);
+    checkRequest(uphone, setRequest, setReqFriends);
+  }, [uid]);
 
   return (
     <div className="flex flex-col h-screen bg-[#F6F1E9] text-white border-r-2 border-black ">
       <UserNav
-        uname={props.uname}
-        uid={props.uid}
-        addFriend={() => {
-          setAdd(!isadd);
-        }}
-        onChange={() => {
-          props.account(
-            props.uid,
-            props.uname,
-            props.uemail,
-            props.uphone,
-            props.upassword
-          );
-        }}
-        onRight={() => {
-          props.onRight();
-        }}
+        uname={uname}
+        uid={uid}
+        addFriend={() => setAdd(!isadd)}
+        onChange={() =>
+          displayUserDetails(uid, uname, uemail, uphone, upassword)
+        }
+        onRight={onRight}
         handleSearch={() => {
           setSearch(!search);
         }}
       />
-      {search && <Search map={sortFriends} />}
-      {request ? (
+      {search && (
+        <Search
+          mapName={sortFriends}
+          mapPhone={sortPhones}
+          uid={uid}
+          setFriends={setFriends}
+          setFilteredFriends={setFilteredFriends}
+        />
+      )}
+      {request && (
         <div
           onClick={() => {
             setRequest(false);
@@ -155,17 +86,15 @@ export default function Left(props) {
         >
           Friend Requests
         </div>
-      ) : (
-        ""
       )}
       {isadd ? (
         <AddFriend
-          uid={props.uid}
-          uname={props.uname}
-          uphone={props.uphone}
+          uid={uid}
+          uname={uname}
+          uphone={uphone}
           onChange={() => {
             setAdd(!isadd);
-            getFriends();
+            getFriends(uid, setFriends, setFilteredFriends);
           }}
         />
       ) : (
@@ -174,10 +103,10 @@ export default function Left(props) {
       {display ? (
         <DisplayRequests
           requests={reqFriends}
-          uid={props.uid}
+          uid={uid}
           onChange={() => {
-            getFriends();
-            checkRequest();
+            getFriends(uid, setFriends, setFilteredFriends);
+            checkRequest(uphone, setRequest, setReqFriends);
             setDisplay(false);
           }}
         />
@@ -185,14 +114,24 @@ export default function Left(props) {
         <DisplayFriends
           friends={filteredFriends}
           onChange={() => {
-            getFriends();
-            props.onChange();
+            getFriends(uid, setFriends, setFilteredFriends);
+            onChange();
           }}
           onChat={(fid, uid, uname, uphone, fname, fphone, status) => {
-            props.chatRoom(fid, uid, uname, uphone, fname, fphone, status);
+            chatRoom(fid, uid, uname, uphone, fname, fphone, status);
             setSearch(false);
           }}
-          onChecked={handleRename}
+          onChecked={(uid, fid, value) =>
+            handleRename(
+              uid,
+              fid,
+              value,
+              setFriends,
+              setFilteredFriends,
+              chatRoom,
+              popUp
+            )
+          }
         />
       )}
     </div>

@@ -4,9 +4,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { useEffect } from "react";
 
-export default function DisplayRequests(props) {
-  const { requests, uid } = props;
-
+export default function DisplayRequests({ requests, uid, onChange }) {
   useEffect(() => {
     AOS.init({ duration: 1000 });
   }, []);
@@ -19,7 +17,7 @@ export default function DisplayRequests(props) {
       <div
         className="flex gap-2 items-center cursor-pointer text-[#4F200D]"
         onClick={() => {
-          props.onChange();
+          onChange();
         }}
       >
         <IoReturnUpBack className="pl-4 text-3xl w-fit font-black " />
@@ -37,7 +35,7 @@ export default function DisplayRequests(props) {
                 toname={item.toname}
                 tophone={item.tophone}
                 onChecked={() => {
-                  props.onChange();
+                  onChange();
                 }}
               />
             </div>

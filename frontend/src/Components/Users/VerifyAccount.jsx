@@ -6,11 +6,15 @@ import { MdEmail } from "react-icons/md";
 import { useState } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { ToastContainer, Slide, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useEffect } from "react";
+import PuffLoader from "react-spinners/PuffLoader";
+import { registerUser } from "./utils";
 
 export default function VerifyAccount() {
   const location = useLocation();
-  const { number, email } = location.state || {};
+  const { number, email, phone, pass, name } = location.state || {};
   const [otp, setOtp] = useState("");
   const navigate = useNavigate();
   const [spin, setSpin] = useState(false);
@@ -23,12 +27,11 @@ export default function VerifyAccount() {
     setSpin(true);
     setTimeout(() => {
       if (parseInt(otp) === parseInt(number)) {
-        setSpin(false);
-        alert("Verified");
-        navigate("/login", { state: { useremail: email } });
+        toast.success("Verified");
+        registerUser(email, phone, pass, name, navigate, setSpin);
       } else {
         setSpin(false);
-        alert("Incorrect OTP");
+        toast.warn("Incorrect OTP");
       }
     }, 5000);
   }
@@ -38,7 +41,7 @@ export default function VerifyAccount() {
       className=" gradient-bg h-screen *:transition-all"
       data-aos="flip-down"
     >
-      {spin ? (
+      {/* {spin ? (
         <div className="spinner absolute h-screen w-screen bg-[#000] opacity-80 z-10">
           <div
             role="status"
@@ -65,7 +68,13 @@ export default function VerifyAccount() {
         </div>
       ) : (
         ""
-      )}
+      )} */}
+      <ToastContainer
+        hideProgressBar="false"
+        position="top-right"
+        transition={Slide}
+        autoClose={5000}
+      />
       <Link to="/register">
         <span className="absolute top-10 left-20 text-6xl">
           <IoMdArrowRoundBack />
@@ -83,7 +92,9 @@ export default function VerifyAccount() {
             <MdEmail className="text-[#4F200D] w-[25px] text-2xl" />
             <input
               type="text"
-              className="border-none outline-none bg-transparent text-[#4F200D] font-semibold"
+              className={`${
+                spin ? "cursor-not-allowed" : ""
+              } border-none outline-none bg-transparent text-[#4F200D] font-semibold`}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled
@@ -93,7 +104,9 @@ export default function VerifyAccount() {
             <AiOutlineNumber className="text-[#F6F1E9] w-[25px] text-xl bg-[#4F200D] rounded-md" />
             <input
               type="text"
-              className="border-none outline-none bg-transparent text-[#4F200D] font-semibold"
+              className={`${
+                spin ? "cursor-not-allowed" : ""
+              } border-none outline-none bg-transparent text-[#4F200D] font-semibold`}
               placeholder="Enter OTP"
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
@@ -101,8 +114,11 @@ export default function VerifyAccount() {
           </div>
           <button
             onClick={handleCheckOtp}
-            className="cursor-pointer hover:border-2 hover:border-[#4F200D] text-[#4F200D] px-3 py-1 justify-center mx-auto flex rounded-full bg-[#FFD93D] font-semibold"
+            className={`${
+              spin ? "cursor-not-allowed" : ""
+            } cursor-pointer hover:border-2 hover:border-[#4F200D] text-[#4F200D] px-3 py-1 justify-center mx-auto flex items-center gap-3 rounded-full bg-[#FFD93D] font-semibold`}
           >
+            {spin ? <PuffLoader size={30} color="#4F200D" /> : ""}
             Verify OTP
           </button>
         </div>

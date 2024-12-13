@@ -3,10 +3,10 @@ import Landing from "./Components/Landing/Landing";
 import Login from "./Components/Users/Login";
 import Register from "./Components/Users/Register";
 import Forgot from "./Components/Users/Forgot";
-import Password from "./Components/Users/Passwords";
-import Dashboard from "./Components/Dashboard";
+import Passwords from "./Components/Users/Passwords";
 import VerifyPass from "./Components/Users/VerifyPass";
 import VerifyAccount from "./Components/Users/VerifyAccount";
+import Dashboard from "./Components/Dashboard/Dashboard";
 
 function App() {
   return (
@@ -18,7 +18,7 @@ function App() {
         <Route path="/forgot" element={<Forgot />} />
         <Route path="/verifypass" element={<VerifyPass />} />
         <Route path="/verifyacc" element={<VerifyAccount />} />
-        <Route path="/changepassword" element={<Password />} />
+        <Route path="/changepassword" element={<Passwords />} />
         <Route path="/:username" element={<Dashboard />} />
       </Routes>
     </BrowserRouter>

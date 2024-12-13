@@ -1,18 +1,17 @@
-import FriendCard from "./FriendCard";
+import FriendCard from "./FriendCard/FriendCard";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { useEffect } from "react";
 
-export default function DisplayFriends(props) {
-  const { friends } = props;
-
+export default function DisplayFriends({
+  friends,
+  onChange,
+  onChat,
+  onChecked,
+}) {
   useEffect(() => {
     AOS.init({ duration: 1000 });
   }, []);
-
-  function handleRename(uid, fid, value) {
-    props.onChecked(uid, fid, value);
-  }
 
   return (
     <div className="flex overflow-y-auto flex-col gap-3 text-[#4F200D] mt-4">
@@ -21,7 +20,7 @@ export default function DisplayFriends(props) {
           <div
             key={item.fid}
             onClick={() => {
-              props.onChat(
+              onChat(
                 item.fid,
                 item.userid,
                 item.username,
@@ -43,8 +42,10 @@ export default function DisplayFriends(props) {
               fphone={item.friendphone}
               pin={item.pin}
               status={item.status}
-              onChecked={props.onChange}
-              rename={handleRename}
+              onChecked={onChange}
+              rename={(uid, fid, value) => {
+                onChecked(uid, fid, value);
+              }}
             />
           </div>
         );

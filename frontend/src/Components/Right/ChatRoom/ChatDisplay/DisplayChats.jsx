@@ -1,10 +1,18 @@
 import { useEffect, useRef } from "react";
 import ChatDrop from "./ChatDrop";
-import "../../../App.css";
+import "../../../../App.css";
 import AOS from "aos";
 import "aos/dist/aos.css";
 
-export default function DisplayChats(props) {
+export default function DisplayChats({
+  chats,
+  uid,
+  fid,
+  uphone,
+  fphone,
+  onChecked,
+  onChange,
+}) {
   const chatContainerRef = useRef(null);
 
   useEffect(() => {
@@ -16,11 +24,11 @@ export default function DisplayChats(props) {
       chatContainerRef.current.scrollTop =
         chatContainerRef.current.scrollHeight;
     }
-  }, [props.chats]);
+  }, [chats]);
 
   return (
     <div ref={chatContainerRef} className="h-[80vh] overflow-y-auto pt-1">
-      {props.chats?.map((item) => {
+      {chats?.map((item) => {
         if (item.message.substring(0, 5) === "date:") {
           return (
             <div
@@ -34,7 +42,7 @@ export default function DisplayChats(props) {
               </div>
             </div>
           );
-        } else if (item.fromphone === props.uphone) {
+        } else if (item.fromphone === uphone) {
           return (
             <div
               key={item.id}
@@ -49,10 +57,10 @@ export default function DisplayChats(props) {
                   minutes={item.minutes}
                   hours={item.hours}
                   onDelete={(id, fromphone, tophone) => {
-                    props.onChecked(id, fromphone, tophone);
+                    onChecked(id, fromphone, tophone);
                   }}
                   onEdit={(id, fromphone, tophone, msg) => {
-                    props.onChange(id, fromphone, tophone, msg);
+                    onChange(id, fromphone, tophone, msg);
                   }}
                 />
                 <div className="flex relative w-fit break-all max-w-[500px] text-wrap bg-[#000] pr-14 px-3 py-1 rounded-tl-lg rounded-bl-lg">

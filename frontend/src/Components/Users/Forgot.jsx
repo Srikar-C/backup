@@ -7,7 +7,10 @@ import { Link, useNavigate } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { useEffect } from "react";
-import url from "../../url";
+import { ToastContainer, Slide } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import PuffLoader from "react-spinners/PuffLoader";
+import { forgotPassword } from "./utils";
 
 export default function Forgot() {
   const [email, setEmail] = useState("");
@@ -20,37 +23,8 @@ export default function Forgot() {
 
   function handleForgot() {
     setSpin(true);
-    const num = Math.floor(100000 + Math.random() * 900000);
     setTimeout(() => {
-      fetch(`${url}/send-email`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          to: email,
-          subject: "OTP Details",
-          text: num,
-        }),
-      })
-        .then((response) => {
-          if (response.status === 201) {
-            return response.json();
-          }
-          return response.json().then((data) => {
-            return Promise.reject(data.message);
-          });
-        })
-        .then((data) => {
-          setSpin(false);
-          alert("OTP sent, Check and Enter");
-          navigate("/verifypass", { state: { number: num, email: email } });
-        })
-        .catch((err) => {
-          setSpin(false);
-          alert(err);
-          console.log("Forgot.jsx->Error on sending OTP: " + err);
-        });
+      forgotPassword(email, setSpin, navigate);
     }, 5000);
   }
 
@@ -59,34 +33,12 @@ export default function Forgot() {
       className=" gradient-bg h-screen *:transition-all overflow-hidden"
       data-aos="flip-up"
     >
-      {spin ? (
-        <div className="spinner absolute h-screen w-screen bg-[#000] opacity-80 z-10">
-          <div
-            role="status"
-            className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2"
-          >
-            <svg
-              aria-hidden="true"
-              class="w-10 h-10 text-gray-200 animate-spin dark:text-gray-600 fill-[#FFD93D]"
-              viewBox="0 0 100 101"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                fill="currentColor"
-              />
-              <path
-                d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                fill="currentFill"
-              />
-            </svg>
-            <span class="sr-only">Loading...</span>
-          </div>
-        </div>
-      ) : (
-        ""
-      )}
+      <ToastContainer
+        hideProgressBar="false"
+        position="top-right"
+        transition={Slide}
+        autoClose={5000}
+      />
       <Link to="/">
         <span className="absolute top-10 left-20 text-6xl">
           <IoMdArrowRoundBack />
@@ -104,26 +56,40 @@ export default function Forgot() {
             <MdEmail className="text-[#4F200D] w-[25px] text-2xl" />
             <input
               type="text"
-              className="border-none outline-none bg-transparent text-[#4F200D] font-semibold"
+              className={` ${
+                spin ? "cursor-not-allowed" : ""
+              } border-none outline-none bg-transparent text-[#4F200D] font-semibold`}
               placeholder="Enter Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              disabled={spin ? true : false}
             />
           </div>
           <button
             onClick={handleForgot}
-            className="cursor-pointer hover:border-2 hover:border-[#4F200D] text-[#4F200D] px-3 py-1 justify-center mx-auto flex rounded-full bg-[#FFD93D] font-semibold"
+            className={`${
+              spin ? "cursor-not-allowed" : ""
+            } hover:border-2 hover:border-[#4F200D] text-[#4F200D] px-3 py-1 justify-center mx-auto flex items-center gap-3 rounded-full bg-[#FFD93D] font-semibold`}
           >
+            {spin ? <PuffLoader size={30} color="#4F200D" /> : ""}
             Send OTP through Email
           </button>
           <div className="font-medium text-center text-[#4F200D] gap-3 flex flex-row justify-center mx-auto">
-            <Link to="/login" className="hover:font-bold">
-              Sign up
-            </Link>
+            {spin ? (
+              <span className="cursor-not-allowed">Sign up</span>
+            ) : (
+              <Link to="/login" className="hover:font-bold">
+                Sign up
+              </Link>
+            )}
             <p>or</p>
-            <Link to="/register" className="hover:font-bold">
-              Sign in
-            </Link>
+            {spin ? (
+              <span className="cursor-not-allowed">Sign in</span>
+            ) : (
+              <Link to="/register" className="hover:font-bold">
+                Sign in
+              </Link>
+            )}
           </div>
         </div>
       </div>

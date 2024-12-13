@@ -5,7 +5,16 @@ import MenuItem from "@mui/material/MenuItem";
 import Fade from "@mui/material/Fade";
 import { LuArrowDownLeft } from "react-icons/lu";
 
-export default function ChatDrop(props) {
+export default function ChatDrop({
+  id,
+  fromphone,
+  tophone,
+  message,
+  minutes,
+  hours,
+  onDelete,
+  onEdit,
+}) {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const date = new Date();
@@ -40,25 +49,20 @@ export default function ChatDrop(props) {
         onClose={handleClose}
         TransitionComponent={Fade}
       >
-        {Math.abs(min - props.minutes) <= 5 &&
-          Math.abs(hrs - props.hours) == 0 && (
-            <MenuItem
-              onClick={() => {
-                props.onEdit(
-                  props.id,
-                  props.fromphone,
-                  props.tophone,
-                  props.message
-                );
-                handleClose();
-              }}
-            >
-              Edit
-            </MenuItem>
-          )}
+        {Math.abs(min - minutes) <= 5 && Math.abs(hrs - hours) == 0 && (
+          <MenuItem
+            onClick={() => {
+              console.log("Chatdrop.jsx", id, fromphone, tophone, message);
+              onEdit(id, fromphone, tophone, message);
+              handleClose();
+            }}
+          >
+            Edit
+          </MenuItem>
+        )}
         <MenuItem
           onClick={() => {
-            props.onDelete(props.id, props.fromphone, props.tophone);
+            onDelete(id, fromphone, tophone);
             handleClose();
           }}
         >
