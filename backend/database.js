@@ -17,7 +17,7 @@ app.get("/", (req, res) => {
   const dbQuery = `CREATE DATABASE whatsappnew;`;
   db.query(dbQuery, (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
       res.send(err.message);
     } else {
       console.log("Database created Successfully");

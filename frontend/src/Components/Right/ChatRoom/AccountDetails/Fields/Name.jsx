@@ -1,4 +1,4 @@
-import { handleName } from "../utils";
+import { handleName } from "../Account/utils";
 import { FaUserAlt } from "react-icons/fa";
 import { TiTick } from "react-icons/ti";
 

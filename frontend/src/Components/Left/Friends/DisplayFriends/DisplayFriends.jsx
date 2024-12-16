@@ -1,7 +1,7 @@
-import FriendCard from "./FriendCard/FriendCard";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { useEffect } from "react";
+import FriendCard from "./FriendCard/FriendCard";
 
 export default function DisplayFriends({
   friends,

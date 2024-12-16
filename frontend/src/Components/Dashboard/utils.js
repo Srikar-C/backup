@@ -25,7 +25,7 @@ export function handleChat(uphone, fphone) {
     .catch((err) => {
       if (err != "Data already inserted") {
         alert(err);
-        console.log("Dashboard.jsx->Error on setting daily: " + err);
+        console.error("Dashboard.jsx->Error on setting daily: " + err);
       }
     });
 }

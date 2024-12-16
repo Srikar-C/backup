@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import UserNav from "./Navigation/UserNav";
-import AddFriend from "./Friends/AddFriend/AddFriend";
-import DisplayFriends from "./Friends/DisplayFriends";
-import DisplayRequests from "./Requests/DisplayRequests";
 import Search from "./Search";
 import { checkRequest, getFriends, handleRename } from "./utils";
+import UserNav from "./../Navigation/UserNav";
+import AddFriend from "./../Friends/AddFriend/AddFriend";
+import DisplayFriends from "./../Friends/DisplayFriends/DisplayFriends";
+import DisplayRequests from "./../Requests/DisplayRequests";
 
 export default function Left({
   uid,

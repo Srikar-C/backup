@@ -58,6 +58,7 @@ export default function Login() {
           <div className="phone relative flex items-center bg-transparent rounded-full shadow-inner shadow-[#000] gap-3 px-3 py-2">
             <FaPhoneAlt className="text-[#4F200D] w-[25px] text-xl" />
             <input
+              id="phone"
               type="text"
               className={`${
                 spin ? "cursor-not-allowed" : ""
@@ -66,11 +67,17 @@ export default function Login() {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               disabled={spin ? true : false}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  document.getElementById("password").focus(); // Move focus to password field
+                }
+              }}
             />
           </div>
           <div className="password relative flex items-center bg-transparent rounded-full shadow-inner shadow-black gap-3 px-3 py-2">
             <RiLockPasswordFill className="text-[#4F200D] w-[25px] text-xl" />
             <input
+              id="password"
               type={passEye ? "text" : "password"}
               className={`${
                 spin ? "cursor-not-allowed" : ""
@@ -79,6 +86,11 @@ export default function Login() {
               value={pass}
               onChange={(e) => setPass(e.target.value)}
               disabled={spin ? true : false}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleLogin();
+                }
+              }}
             />
             <span
               onClick={() => setPassEye(!passEye)}

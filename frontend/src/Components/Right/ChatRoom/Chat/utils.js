@@ -1,12 +1,12 @@
 import url from "../../../../url";
 
-export function handlePin(fid, uid, setPins, onChecked) {
-  fetch(`${url}/changepin`, {
+export function getChats(uphone, fphone, setChat, setEdit) {
+  fetch(`${url}/getchats`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ fid: fid, uid: uid }),
+    body: JSON.stringify({ phone1: uphone, phone2: fphone }),
   })
     .then((response) => {
       if (response.status === 201) {
@@ -17,32 +17,32 @@ export function handlePin(fid, uid, setPins, onChecked) {
       });
     })
     .then((data) => {
-      if (data.pin === true) {
-        setPins(true);
-      } else {
-        setPins(false);
-      }
-      onChecked();
+      setChat(data);
+      setEdit(false);
     })
     .catch((err) => {
       alert(err);
-      console.log("FriendCard.jsx->Error is: " + err);
+      console.log("Chat.jsx->Error on geting chats : " + err);
     });
 }
 
-export function handleDelete(fid, uid, uphone, fphone, status, onChecked) {
-  fetch(`${url}/deletefriend_chat`, {
+export function handleDelete(
+  id,
+  fromphone,
+  tophone,
+  popUp,
+  getChats,
+  uphone,
+  fphone,
+  setChat,
+  setEdit
+) {
+  fetch(`${url}/deletechat`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      phone1: uphone,
-      phone2: fphone,
-      uid: uid,
-      fid: fid,
-      status: status,
-    }),
+    body: JSON.stringify({ id: id, fromphone: fromphone, tophone: tophone }),
   })
     .then((response) => {
       if (response.status === 201) {
@@ -53,10 +53,11 @@ export function handleDelete(fid, uid, uphone, fphone, status, onChecked) {
       });
     })
     .then((data) => {
-      onChecked();
+      popUp("Chat Deleted Successfully");
+      getChats(uphone, fphone, setChat, setEdit);
     })
     .catch((err) => {
       alert(err);
-      console.log("FriendCard.jsx->Error is: " + err);
+      console.log("Chat.jsx->Error on deleting chat: " + err);
     });
 }

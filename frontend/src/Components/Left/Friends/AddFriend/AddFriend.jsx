@@ -55,7 +55,7 @@ export default function AddFriend({ uid, uname, uphone, onChange }) {
           .catch((err) => {
             if (err.type === "info") {
               toast.info(err.message, { duration: 4000 });
-            } else if (err.type === "phone") {
+            } else if (err.type === "warn") {
               toast.warn(err.message, { duration: 4000 });
             } else {
               toast.error(err.message, { duration: 4000 });

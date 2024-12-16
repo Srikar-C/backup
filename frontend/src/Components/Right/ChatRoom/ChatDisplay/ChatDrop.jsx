@@ -52,7 +52,6 @@ export default function ChatDrop({
         {Math.abs(min - minutes) <= 5 && Math.abs(hrs - hours) == 0 && (
           <MenuItem
             onClick={() => {
-              console.log("Chatdrop.jsx", id, fromphone, tophone, message);
               onEdit(id, fromphone, tophone, message);
               handleClose();
             }}

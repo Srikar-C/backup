@@ -9,13 +9,18 @@ const app = express();
 const port = 3000;
 
 const db = new pg.Client({
-  port: 5432,
-  host: "localhost",
-  user: "postgres",
-  database: "whatsappnew",
-  password: "tiger",
-  // connectionString:
-  //   "postgresql://whatsappnew_owner:VRd1ZNtIvq0s@ep-yellow-morning-a5v49e60.us-east-2.aws.neon.tech/whatsappnew?sslmode=require",
+  /* For local rendering
+  {
+    // port: 5432,
+    // host: "localhost",
+    // user: "postgres",
+    // database: "whatsappnew",
+    // password: "tiger",
+  }
+  */
+  /* For online rendering */
+  connectionString:
+    "postgresql://whatsappnew_owner:VRd1ZNtIvq0s@ep-yellow-morning-a5v49e60.us-east-2.aws.neon.tech/whatsappnew?sslmode=require",
 });
 
 db.connect((err) => {
@@ -48,7 +53,7 @@ app.get("/", (req, res) => {
   const userQuery = `CREATE TABLE ${userTable}(userid serial primary key,username varchar(50),useremail varchar(100) unique,userphone char(10) unique,userpassword varchar(50));`;
   db.query(userQuery, (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
     } else {
       console.log("User Table Created Successfully");
     }
@@ -57,7 +62,7 @@ app.get("/", (req, res) => {
   const frendQuery = `CREATE TABLE ${friendTable}(fid serial primary key,userid integer,username varchar(50),userphone varchar(10),friendname varchar(50),friendphone varchar(10),status varchar(1) DEFAULT 1,pin boolean DEFAULT false);`;
   db.query(frendQuery, (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
     } else {
       console.log("Friend Table Created Successfully");
     }
@@ -66,7 +71,7 @@ app.get("/", (req, res) => {
   const requestQuery = `CREATE TABLE ${requestTable}(rid serial primary key,fromname varchar(50),fromphone varchar(10),toname varchar(50),tophone varchar(10));`;
   db.query(requestQuery, (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
     } else {
       console.log("Request Table Created Successfully");
     }
@@ -75,7 +80,7 @@ app.get("/", (req, res) => {
   const chatQuery = `CREATE TABLE ${chatTable}(id serial primary key,uid integer,fid integer,fromphone varchar(10),tophone varchar(10),message text,hours varchar(2),minutes varchar(2),seconds varchar(2));`;
   db.query(chatQuery, (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
     } else {
       console.log("Chat Table Created Successfully");
     }
@@ -84,7 +89,7 @@ app.get("/", (req, res) => {
   const dailyLogin = `CREATE TABLE ${dailyTable}(id serial primary key,uphone varchar(10),fphone varchar(10), date varchar(2),month varchar(20),year varchar(10),chatted boolean DEFAULT false);`;
   db.query(dailyLogin, (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
     } else {
       console.log("Daily Login Table Created Successfully");
     }
@@ -100,50 +105,50 @@ app.post("/register", (req, res) => {
   if (!emailValidator.validate(useremail)) {
     return res
       .status(300)
-      .send({ message: "Invalid email address", type: "invalid" });
+      .send({ message: "Invalid email address", type: "warn" });
   }
   if (userphone.length != 10) {
     return res
       .status(404)
-      .send({ message: "Enter 10 digit Phone Number", type: "invalid" });
+      .send({ message: "Enter 10 digit Phone Number", type: "warn" });
   }
   const checkReg = `SELECT * FROM ${userTable} where useremail = $1 and userphone = $2;`;
   db.query(checkReg, [useremail, userphone], (err, response) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
       return res.status(500).send({ message: err.message });
     } else if (response.rows.length > 0) {
       return res.status(303).send({
         message: `Both email and phone number are already registered. Please Login or register with other details`,
-        type: "EP",
+        type: "info",
       });
     } else if (response.rows.length === 0) {
       const mailCheck = `SELECT * FROM ${userTable} where useremail = $1;`;
       db.query(mailCheck, [useremail], (error, result) => {
         if (error) {
-          console.log(error.message);
+          console.error(error.message);
           return res.status(500).send({ message: error.message });
         } else if (result.rows.length > 0) {
           return res.status(303).send({
             message: `Email is already Registered, Please Login or register with other details`,
-            type: "email",
+            type: "info",
           });
         } else {
           const phoneCheck = `SELECT * FROM ${userTable} where userphone = $1;`;
           db.query(phoneCheck, [userphone], (error, result) => {
             if (error) {
-              console.log(error.message);
+              console.error(error.message);
               return res.status(500).send({ message: error.message });
             } else if (result.rows.length > 0) {
               return res.status(303).send({
                 message: `Phone number is already Registered, Please Login or register with other details`,
-                type: "phone",
+                type: "info",
               });
             } else {
               if (userphone.length !== 10) {
                 return res.status(404).send({
                   message: "Enter 10 digit Phone Number",
-                  type: "invalid",
+                  type: "warn",
                 });
               }
               const regQuery = `INSERT INTO ${userTable} (username,useremail,userphone,userpassword) VALUES ($4,$1,$2,$3) RETURNING *;`;
@@ -152,7 +157,7 @@ app.post("/register", (req, res) => {
                 [useremail, userphone, userpassword, username],
                 (error, result) => {
                   if (error) {
-                    console.log(error.message);
+                    console.error(error.message);
                     return res.status(500).send({ message: error.message });
                   } else {
                     return res.status(201).send(result.rows[0]);
@@ -173,16 +178,16 @@ app.post("/login", (req, res) => {
   const checkLog = `SELECT * FROM ${userTable} where userphone = $1;`;
   db.query(checkLog, [userphone], (err, response) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
       return res.status(500).send({ message: err.message });
     } else if (userphone.length !== 10) {
       return res
         .status(404)
-        .send({ message: "Invalid Phone Number", type: "phone" });
+        .send({ message: "Invalid Phone Number", type: "warn" });
     } else if (response.rows.length === 0) {
       return res.status(404).send({
         message: `Not an Existing User, Please register`,
-        type: "user",
+        type: "info",
       });
     } else if (response.rows.length > 0) {
       const { userpassword: hashedPassword } = response.rows[0];
@@ -191,7 +196,7 @@ app.post("/login", (req, res) => {
       } else {
         return res
           .status(404)
-          .send({ message: "Incorrect Password", type: "password" });
+          .send({ message: "Incorrect Password", type: "warn" });
       }
     }
   });
@@ -204,24 +209,24 @@ app.post("/send-email-register", (req, res) => {
   const checkEmail = `SELECT * FROM ${userTable} where useremail=$1;`;
   db.query(checkEmail, [to], (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
       return res.status(500).send({ message: err.message });
     } else if (result.rows.length > 0) {
       return res
         .status(303)
-        .send({ message: "Email already registered", type: "invalid" });
+        .send({ message: "Email already registered", type: "warn" });
     }
   });
 
   if (phone.length != 10) {
     return res
       .status(404)
-      .send({ message: "Enter 10 digit Phone Number", type: "invalid" });
+      .send({ message: "Enter 10 digit Phone Number", type: "warn" });
   }
   if (!emailValidator.validate(to)) {
     return res
       .status(404)
-      .send({ message: "Invalid email address", type: "invalid" });
+      .send({ message: "Invalid email address", type: "warn" });
   }
   const transporter = nodemailer.createTransport({
     service: "Gmail",
@@ -260,12 +265,12 @@ app.post("/send-email", (req, res) => {
   if (!emailValidator.validate(to)) {
     return res
       .status(404)
-      .send({ message: "Invalid email address", type: "invalid" });
+      .send({ message: "Invalid email address", type: "warn" });
   }
 
   db.query(query, [to], (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
       return res.status(500).send({ message: err.message });
     } else if (result.rows.length > 0) {
       const transporter = nodemailer.createTransport({
@@ -298,7 +303,7 @@ app.post("/send-email", (req, res) => {
       console.log("No User with this email ID");
       res
         .status(404)
-        .send({ message: "No User with this email ID", type: "invalid" });
+        .send({ message: "No User with this email ID", type: "warn" });
     }
   });
 });
@@ -309,7 +314,7 @@ app.post("/changepassword", (req, res) => {
   const changeQuery = `UPDATE ${userTable} SET userpassword=$2 where useremail=$1 RETURNING *;`;
   db.query(changeQuery, [useremail, password], (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
       return res.status(500).send({ message: err.message });
     } else {
       console.log("Password Changed successfully");
@@ -324,12 +329,12 @@ app.post("/checkfriend", (req, res) => {
   if (userphone === friendphone) {
     return res
       .status(500)
-      .send({ message: "Friend Number is same as Your Number", type: "phone" });
+      .send({ message: "Friend Number is same as Your Number", type: "warn" });
   }
   const checkFriendQuery = `SELECT * FROM ${userTable} where userphone=$1;`;
   db.query(checkFriendQuery, [userphone], (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
       return res.status(500).send({ message: err.message });
     } else if (result.rows.length === 0) {
       return res.status(404).send({
@@ -341,7 +346,7 @@ app.post("/checkfriend", (req, res) => {
       const alreadyFriend = `SELECT * FROM ${friendTable} where userphone=$1 and friendphone=$2;`;
       db.query(alreadyFriend, [userphone, friendphone], (error, response) => {
         if (error) {
-          console.log(error.message);
+          console.error(error.message);
           return res.status(500).send({ message: error.message });
         } else if (response.rows.length === 0) {
           return res.status(201).send(result.rows[0]);
@@ -362,7 +367,7 @@ app.post("/addfriend", (req, res) => {
   const checkQuery = `SELECT * FROM ${friendTable} where userphone=$1 and friendphone=$2;`;
   db.query(checkQuery, [uphone, fphone], (error, response) => {
     if (error) {
-      console.log(error.message);
+      console.error(error.message);
       return res.status(500).send({ message: error.message });
     } else if (response.rows.length > 0) {
       console.log("Friend Already Exists");
@@ -373,7 +378,7 @@ app.post("/addfriend", (req, res) => {
       const addQuery = `INSERT INTO ${friendTable} (userid,username,userphone,friendname,friendphone) VALUES ($1,$2,$3,$4,$5) RETURNING *;`;
       db.query(addQuery, [uid, uname, uphone, fname, fphone], (err, result) => {
         if (err) {
-          console.log(err.message);
+          console.error(err.message);
           return res.status(500).send({ message: err.message });
         } else {
           return res.status(201).send(result.rows[0]);
@@ -402,7 +407,7 @@ app.post("/requestfriend", (req, res) => {
         [fromname, fromphone, toname, tophone],
         (err, result) => {
           if (err) {
-            console.log(err.message);
+            console.error(err.message);
             return res.status(500).send({ message: err.message });
           } else {
             console.log("Friend Request sent successfully");
@@ -420,7 +425,7 @@ app.post("/checkrequest", (req, res) => {
   const checkRequestQuery = `SELECT * FROM ${requestTable} WHERE tophone=$1;`;
   db.query(checkRequestQuery, [phone], (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
       return res.status(500).send({ message: err.message });
     } else if (result.rows.length === 0) {
       console.log("No Friend Request found");
@@ -443,7 +448,7 @@ app.post("/acceptreq", (req, res) => {
     [uid, username, userphone, friendname, friendphone, status],
     (err, result) => {
       if (err) {
-        console.log(err.message);
+        console.error(err.message);
         return res.status(500).send({ message: err.message });
       } else {
         console.log("Friend Request Accepted successfully");
@@ -459,7 +464,7 @@ app.post("/removereq", (req, res) => {
   const removeQuery = `DELETE from ${requestTable} WHERE rid=$1;`;
   db.query(removeQuery, [rid], (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
       return res.status(500).send({ message: err.message });
     } else {
       console.log("Request deleted successfully");
@@ -474,7 +479,7 @@ app.post("/updatereq", (req, res) => {
   const updateQuery = `UPDATE ${friendTable} SET status='2' WHERE userphone=$1 AND friendphone=$2 RETURNING *;`;
   db.query(updateQuery, [userphone, friendphone], (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
       return res.status(500).send({ message: err.message });
     } else {
       console.log("Request updated successfully");
@@ -489,7 +494,7 @@ app.post("/changereq", (req, res) => {
   const updateQuery = `UPDATE ${friendTable} SET status='0' WHERE userphone=$1 AND friendphone=$2 RETURNING *;`;
   db.query(updateQuery, [userphone, friendphone], (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
       return res.status(500).send({ message: err.message });
     } else {
       console.log("Request updated successfully");
@@ -504,7 +509,7 @@ app.post("/getfriends", (req, res) => {
   const getFriendsQuery = `SELECT * FROM ${friendTable} WHERE userid=$1 order by pin desc;`;
   db.query(getFriendsQuery, [uid], (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
       return res.status(500).send({ message: err.message });
     } else {
       console.log("Friends fetched successfully");
@@ -519,7 +524,7 @@ app.post("/changepin", (req, res) => {
   const pinQuery = `UPDATE ${friendTable} SET pin=NOT pin WHERE fid=$1 and userid=$2 RETURNING *;`;
   db.query(pinQuery, [fid, uid], (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
       return res.status(500).send({ message: err.message });
     } else {
       console.log("Pin changed successfully");
@@ -535,7 +540,7 @@ app.delete("/deletefriend_chat", (req, res) => {
     const deleteQuery = `DELETE FROM ${friendTable} WHERE fid=$1 and userid=$2 RETURNING *;`;
     db.query(deleteQuery, [fid, uid], (err, result) => {
       if (err) {
-        console.log(err.message);
+        console.error(err.message);
         return res.status(500).send({ message: err.message });
       } else {
         console.log("Deleted friend and chats successfully");
@@ -546,13 +551,13 @@ app.delete("/deletefriend_chat", (req, res) => {
     const deletechatQuery = `DELETE FROM ${chatTable} WHERE (fromphone=$1 and tophone=$2) or (fromphone=$2 and tophone=$1);`;
     db.query(deletechatQuery, [phone1, phone2], (err, result) => {
       if (err) {
-        console.log(err.message);
+        console.error(err.message);
         return res.status(500).send({ message: "Error in Deleting Chat" });
       } else {
         const check = `SELECT * FROM ${friendTable} where fid=$1 and userid=$2;`;
         db.query(check, [fid, uid], (err, response) => {
           if (err) {
-            console.log(err.message);
+            console.error(err.message);
             return res.status(500).send({ message: err.message });
           } else if (response.rows === 0) {
             console.log("Friend not found");
@@ -562,13 +567,13 @@ app.delete("/deletefriend_chat", (req, res) => {
         const deleteQuery = `DELETE FROM ${friendTable} WHERE fid=$1 and userid=$2 RETURNING *;`;
         db.query(deleteQuery, [fid, uid], (err, review) => {
           if (err) {
-            console.log(err.message);
+            console.error(err.message);
             return res.status(500).send({ message: err.message });
           } else {
             const updateQuery = `UPDATE ${friendTable} SET status='3' WHERE userphone=$2 AND friendphone=$1 RETURNING *;`;
             db.query(updateQuery, [phone1, phone2], (error, resp) => {
               if (error) {
-                console.log(error.message);
+                console.error(error.message);
                 return res.status(500).send({ message: error.message });
               } else {
                 console.log("Request updated successfully");
@@ -592,7 +597,7 @@ app.post("/sendmsg", (req, res) => {
     [uid, fid, fromphone, tophone, message, hours, minutes, seconds],
     (err, result) => {
       if (err) {
-        console.log(err.message);
+        console.error(err.message);
         return res.status(500).send({ message: err.message });
       } else {
         console.log("Message sent successfully");
@@ -608,7 +613,7 @@ app.post("/getchats", (req, res) => {
   const recMsgQuery = `SELECT * FROM ${chatTable} WHERE (fromphone=$1 and tophone=$2) or (fromphone=$2 and tophone=$1) order by id;`;
   db.query(recMsgQuery, [phone1, phone2], (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
       return res.status(500).send({ message: err.message });
     } else {
       console.log("Get Message successfully");
@@ -623,7 +628,7 @@ app.post("/rename", (req, res) => {
   const renameQuery = `UPDATE ${friendTable} SET friendname=$3 where userid=$1 and fid=$2 RETURNING *;`;
   db.query(renameQuery, [uid, fid, value], (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
       return res.status(500).send({ message: err.message });
     } else {
       console.log("Friend renamed successfully");
@@ -638,7 +643,7 @@ app.delete("/deletechat", (req, res) => {
   const deleteQuery = `DELETE FROM ${chatTable} where id=$1 and fromphone=$2 and tophone=$3;`;
   db.query(deleteQuery, [id, fromphone, tophone], (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
       return res.status(500).send({ message: err.message });
     } else {
       console.log("Chat deleted successfully");
@@ -656,7 +661,7 @@ app.post("/editmsg", (req, res) => {
     [id, fromphone, tophone, message],
     (err, result) => {
       if (err) {
-        console.log(err.message);
+        console.error(err.message);
         return res.status(500).send({ message: err.message });
       } else {
         console.log("Update chat successful");
@@ -672,7 +677,7 @@ app.post("/nameupdate", (req, res) => {
   const nameQuery = `UPDATE ${userTable} SET username=$2 where userid=$1;`;
   db.query(nameQuery, [id, name], (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
       return res.status(500).send({ message: err.message });
     } else {
       console.log("User name updated successfully");
@@ -688,7 +693,7 @@ app.post("/emailupdate", (req, res) => {
   const checkEmail = `SELECT * FROM "${userTable}" WHERE useremail=$1;`;
   db.query(checkEmail, [email], (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
       return res.status(500).send({ message: err.message });
     } else if (result.rowCount > 0) {
       return res.status(400).send({ message: "Email already exists" });
@@ -696,7 +701,7 @@ app.post("/emailupdate", (req, res) => {
       const emailQuery = `UPDATE "${userTable}" SET useremail=$2 WHERE userid=$1;`;
       db.query(emailQuery, [id, email], (error, response) => {
         if (error) {
-          console.log(error.message);
+          console.error(error.message);
           return res.status(500).send({ message: error.message });
         } else {
           console.log("User email updated successfully");
@@ -713,7 +718,7 @@ app.post("/passupdate", (req, res) => {
   const passQuery = `UPDATE ${userTable} SET userpassword=$2 where userid=$1;`;
   db.query(passQuery, [id, pass], (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
       return res.status(500).send({ message: err.message });
     } else {
       console.log("User password updated successfully");
@@ -728,7 +733,7 @@ app.post("/getuser", (req, res) => {
   const getQuery = `SELECT * FROM ${userTable} where userid=$1;`;
   db.query(getQuery, [uid], (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
       return res.status(500).send({ message: err.message });
     } else {
       console.log("User retrieved successfully");
@@ -829,7 +834,7 @@ app.post("/checkdaily", (req, res) => {
     [fromphone, tophone, day, monthName, year],
     (err, result) => {
       if (err) {
-        console.log(err.message);
+        console.error(err.message);
         return res.status(500).send({ message: err.message });
       }
       if (result.rows.length > 0) {
@@ -846,7 +851,7 @@ app.post("/checkdaily", (req, res) => {
             [uid, fid, fromphone, tophone, message, hours, minutes, seconds],
             (error, response) => {
               if (error) {
-                console.log(error.message);
+                console.error(error.message);
                 return res.status(500).send({ message: error.message });
               }
               const updateDailyQuery = `UPDATE ${dailyTable} SET chatted = true WHERE ((uphone=$1 AND fphone=$2) OR (uphone=$2 AND fphone=$1)) AND date=$3 AND month=$4 AND year=$5;`;
@@ -855,7 +860,7 @@ app.post("/checkdaily", (req, res) => {
                 [fromphone, tophone, day, monthName, year],
                 (updateErr, updateRes) => {
                   if (updateErr) {
-                    console.log(updateErr.message);
+                    console.error(updateErr.message);
                     return res.status(500).send({ message: updateErr.message });
                   }
                   return res.status(201).send({
@@ -874,7 +879,7 @@ app.post("/checkdaily", (req, res) => {
 app.get("/users", (req, res) => {
   db.query(`SELECT * FROM ${userTable};`, (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
       return res.status(500).send({ message: err.message });
     } else {
       console.log("Users retrieved successfully" + result.rows);
@@ -886,7 +891,7 @@ app.get("/users", (req, res) => {
 app.get("/requests", (req, res) => {
   db.query(`SELECT * FROM ${requestTable};`, (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
       return res.status(500).send({ message: err.message });
     } else {
       console.log("Users retrieved successfully" + result.rows);
@@ -898,7 +903,7 @@ app.get("/requests", (req, res) => {
 app.get("/friends", (req, res) => {
   db.query(`SELECT * FROM ${friendTable};`, (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
       return res.status(500).send({ message: err.message });
     } else {
       console.log("Users retrieved successfully" + result.rows);
@@ -910,7 +915,7 @@ app.get("/friends", (req, res) => {
 app.get("/chats", (req, res) => {
   db.query(`SELECT * FROM ${chatTable};`, (err, result) => {
     if (err) {
-      console.log(err.message);
+      console.error(err.message);
       return res.status(500).send({ message: err.message });
     } else {
       console.log("Users retrieved successfully" + result.rows);

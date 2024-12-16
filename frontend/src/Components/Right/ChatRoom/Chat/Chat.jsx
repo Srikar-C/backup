@@ -1,11 +1,10 @@
 import { useEffect, useState, useRef } from "react";
-import ChatNav from "./ChatNav/ChatNav";
-import ChatType from "./ChatType/ChatType";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import url from "../../../url";
-import DisplayChats from "./ChatDisplay/DisplayChats";
 import { getChats, handleDelete } from "./utils";
+import ChatNav from "./../ChatNav/ChatNav";
+import ChatType from "./../ChatType/ChatType";
+import DisplayChats from "./../ChatDisplay/DisplayChats";
 
 export default function Chat({
   fid,

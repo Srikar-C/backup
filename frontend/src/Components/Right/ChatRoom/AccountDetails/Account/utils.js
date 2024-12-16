@@ -1,4 +1,4 @@
-import url from "../../../../url";
+import url from "../../../../../url";
 import { toast } from "react-toastify";
 
 export function sendOtp(setSpin, setOtpVal, useremail) {
@@ -30,7 +30,7 @@ export function sendOtp(setSpin, setOtpVal, useremail) {
         toast.success("OTP sent, Check and Enter");
       })
       .catch((err) => {
-        alert(err);
+        toast.error(err);
         console.log("Account.jsx->Error on sending OTP: " + err);
       });
   }, 5000);
@@ -55,32 +55,8 @@ export function handleName(userid, nameval, setName, name) {
       toast.success("Name changed");
     })
     .catch((err) => {
-      alert(err);
+      toast.error(err);
       console.log("Account.jsx->Error in updating name: " + err);
-    });
-}
-
-export function handleEmail(userid, emailval, setEmail, email) {
-  fetch(`${url}/emailupdate`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id: userid, email: emailval }),
-  })
-    .then((response) => {
-      if (response.status === 201) {
-        return response.json();
-      }
-      return response.json().then((data) => {
-        return Promise.reject(data.message);
-      });
-    })
-    .then((data) => {
-      setEmail(!email);
-      toast.success("Email changed");
-    })
-    .catch((err) => {
-      alert(err);
-      console.log("Account.jsx->Error in updating email: " + err);
     });
 }
 
@@ -103,7 +79,7 @@ export function handlePass(userid, passval, setPass, pass) {
       toast.success("Password changed");
     })
     .catch((err) => {
-      alert(err);
+      toast.error(err);
       console.log("Account.jsx->Error in updating pass: " + err);
     });
 }

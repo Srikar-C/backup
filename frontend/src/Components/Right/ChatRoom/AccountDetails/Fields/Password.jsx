@@ -1,23 +1,23 @@
-import { handlePass, sendOtp } from "../utils";
+import { handlePass, sendOtp } from "../Account/utils";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { TiTick } from "react-icons/ti";
 
 export default function Password({
+  userid,
   pass,
   userpassword,
-  passEye,
-  setPassEye,
   passval,
+  passEye,
   setPassVal,
   onChange,
-  setOtp,
+  setPass,
+  useremail,
   otp,
+  setOtp,
+  setPassEye,
   setSpin,
   setOtpVal,
-  useremail,
-  userid,
-  setPass,
 }) {
   return (
     <div className="password flex flex-row gap-5 items-center">

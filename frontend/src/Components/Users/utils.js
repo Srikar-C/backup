@@ -42,9 +42,9 @@ export function loginUser(phone, pass, navigate, setPhone, setPass, setSpin) {
     })
     .catch((err) => {
       setSpin(false);
-      if (err.type === "phone" || err.type === "password") {
+      if (err.type === "warn") {
         toast.warn(err.message);
-      } else if (err.type == "user") {
+      } else if (err.type == "info") {
         toast.info(err.message, { icon: "👤" });
       } else {
         toast.error(err.message);
@@ -55,8 +55,6 @@ export function loginUser(phone, pass, navigate, setPhone, setPass, setSpin) {
 
 export function verifyEmail(email, navigate, phone, pass, name, setSpin) {
   const num = Math.floor(100000 + Math.random() * 900000);
-  console.log(email);
-
   fetch(`${url}/send-email-register`, {
     method: "POST",
     headers: {
@@ -137,13 +135,9 @@ export function registerUser(email, phone, pass, name, navigate, setSpin) {
     })
     .catch((err) => {
       setSpin(false);
-      if (err.type === "invalid") {
+      if (err.type === "warn") {
         toast.warn(err.message);
-      } else if (
-        err.type === "EP" ||
-        err.type === "email" ||
-        err.type === "phone"
-      ) {
+      } else if (err.type === "info") {
         toast.info(err.message, { icon: "👤" });
       } else {
         toast.error(err.message);
@@ -185,16 +179,16 @@ export function forgotPassword(email, setSpin, navigate) {
     })
     .catch((err) => {
       setSpin(false);
-      if (err.type === "invalid") {
-        toast.error(err.message);
+      if (err.type === "warn") {
+        toast.warn(err.message);
       } else {
-        toast(err.message);
+        toast.error(err.message);
       }
       console.log("Forgot.jsx->Error on sending OTP: " + err.message);
     });
 }
 
-export function changePassword() {
+export function changePassword(useremail, pass, setSpin, navigate) {
   fetch(`${url}/changepassword`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

@@ -1,7 +1,6 @@
-import url from "../../url";
+import url from "../../../url";
 
 export function getFriends(uid, setFriends, setFilteredFriends) {
-  console.log(uid);
   fetch(`${url}/getfriends`, {
     method: "POST",
     headers: {
@@ -28,7 +27,6 @@ export function getFriends(uid, setFriends, setFilteredFriends) {
 }
 
 export function checkRequest(uphone, setRequest, setReqFriends) {
-  console.log(uphone);
   fetch(`${url}/checkrequest`, {
     method: "POST",
     headers: {

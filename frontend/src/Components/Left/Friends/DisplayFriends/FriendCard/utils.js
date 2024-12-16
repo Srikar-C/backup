@@ -1,12 +1,12 @@
-import url from "../../../url";
+import url from "../../../../../url";
 
-export function getChats(uphone, fphone, setChat, setEdit) {
-  fetch(`${url}/getchats`, {
+export function handlePin(fid, uid, setPins, onChecked) {
+  fetch(`${url}/changepin`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ phone1: uphone, phone2: fphone }),
+    body: JSON.stringify({ fid: fid, uid: uid }),
   })
     .then((response) => {
       if (response.status === 201) {
@@ -17,32 +17,32 @@ export function getChats(uphone, fphone, setChat, setEdit) {
       });
     })
     .then((data) => {
-      setChat(data);
-      setEdit(false);
+      if (data.pin === true) {
+        setPins(true);
+      } else {
+        setPins(false);
+      }
+      onChecked();
     })
     .catch((err) => {
       alert(err);
-      console.log("Chat.jsx->Error on geting chats : " + err);
+      console.log("FriendCard.jsx->Error is: " + err);
     });
 }
 
-export function handleDelete(
-  id,
-  fromphone,
-  tophone,
-  popUp,
-  getChats,
-  uphone,
-  fphone,
-  setChat,
-  setEdit
-) {
-  fetch(`${url}/deletechat`, {
+export function handleDelete(fid, uid, uphone, fphone, status, onChecked) {
+  fetch(`${url}/deletefriend_chat`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ id: id, fromphone: fromphone, tophone: tophone }),
+    body: JSON.stringify({
+      phone1: uphone,
+      phone2: fphone,
+      uid: uid,
+      fid: fid,
+      status: status,
+    }),
   })
     .then((response) => {
       if (response.status === 201) {
@@ -53,11 +53,10 @@ export function handleDelete(
       });
     })
     .then((data) => {
-      popUp("Chat Deleted Successfully");
-      getChats(uphone, fphone, setChat, setEdit);
+      onChecked();
     })
     .catch((err) => {
       alert(err);
-      console.log("Chat.jsx->Error on deleting chat: " + err);
+      console.log("FriendCard.jsx->Error is: " + err);
     });
 }

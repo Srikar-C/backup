@@ -1,4 +1,3 @@
-import FriendDrop from "../FriendDrop";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 import Avatar from "@mui/material/Avatar";
@@ -6,6 +5,7 @@ import { BsFillPinAngleFill } from "react-icons/bs";
 import { useState } from "react";
 import { TiTick } from "react-icons/ti";
 import { handleDelete, handlePin } from "./utils";
+import FriendDrop from "./FriendDrop";
 
 export default function FriendCard({
   fid,

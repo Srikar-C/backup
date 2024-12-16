@@ -1,8 +1,6 @@
 import url from "../../../../url";
 
 export function handleEditMsg(det, onChecked, edit) {
-  console.log("handleEditMsg", det.id, det.from, det.to, edit);
-
   fetch(`${url}/editmsg`, {
     method: "POST",
     headers: {
@@ -107,6 +105,6 @@ export function handleMsg(msgs, setMsgs, uid, fid, uphone, fphone, onChecked) {
         console.log("ChatType.jsx->Error in checking daily: " + err);
       });
   } else {
-    alert("Enter a message to send");
+    toast.warn("Enter a message to send");
   }
 }

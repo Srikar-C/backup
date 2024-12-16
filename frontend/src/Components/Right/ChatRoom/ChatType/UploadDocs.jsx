@@ -11,7 +11,6 @@ export default function UploadDocs() {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
-      console.log("UploadDocs.jsx->Selected file:", file);
     }
   };
 

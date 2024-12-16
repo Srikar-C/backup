@@ -5,12 +5,12 @@ import "aos/dist/aos.css";
 import "../../App.css";
 import { ToastContainer, Slide, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Left from "./../Left/Left";
 import Right from "./../Right/Right";
-import Chat from "./../Right/ChatRoom/Chat";
 import url from "../../url.jsx";
-import Account from "./../Right/ChatRoom/AccountDetails/Account";
+import Account from "../Right/ChatRoom/AccountDetails/Account/Account.jsx";
 import { handleChat } from "./utils";
+import Left from "../Left/LeftBar/Left.jsx";
+import Chat from "../Right/ChatRoom/Chat/Chat.jsx";
 
 export default function Dashboard() {
   const location = useLocation();
@@ -64,23 +64,23 @@ export default function Dashboard() {
             password: data.userpassword,
           },
         });
-        handleAccount(
-          data.userid,
-          data.username,
-          data.useremail,
-          data.userphone,
-          data.userpassword
+        setRight(
+          <Account
+            userid={data.userid}
+            username={data.username}
+            useremail={data.useremail}
+            userphone={data.userphone}
+            userpassword={data.userpassword}
+            onChange={() => getUser()}
+          />
         );
-
         setRight(<Right />);
       })
       .catch((err) => {
         alert(err);
-        console.log("Dashboard.jsx->Error on Getting User Details: " + err);
+        console.error("Dashboard.jsx->Error on Getting User Details: " + err);
       });
   }
-
-  function handleAccount(id, name, email, phone, password) {}
 
   return (
     <div className="flex flex-row w-screen overflow-hidden">
@@ -108,14 +108,12 @@ export default function Dashboard() {
                 fname={fname}
                 fphone={fphone}
                 status={status}
-                popUp={(data) => {
-                  toast.success(data);
-                }}
+                popUp={(data) => toast.success(data)}
               />
             );
           }}
           onChange={() => setRight(<Right />)}
-          displayUserDetails={(uid, uname, uemail, uphone, upassword) => {
+          displayUserDetails={(uid, uname, uemail, uphone, upassword) =>
             setRight(
               <Account
                 userid={uid}
@@ -125,12 +123,10 @@ export default function Dashboard() {
                 userpassword={upassword}
                 onChange={() => getUser()}
               />
-            );
-          }}
+            )
+          }
           onRight={() => setRight(<Right />)}
-          popUp={(data) => {
-            toast.success(data);
-          }}
+          popUp={(data) => toast.success(data)}
         />
       </div>
       <div className="right w-[70%]" data-aos="fade-left">

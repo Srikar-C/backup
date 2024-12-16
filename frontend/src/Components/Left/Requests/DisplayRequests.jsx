@@ -34,9 +34,7 @@ export default function DisplayRequests({ requests, uid, onChange }) {
                 fromphone={item.fromphone}
                 toname={item.toname}
                 tophone={item.tophone}
-                onChecked={() => {
-                  onChange();
-                }}
+                onChecked={() => onChange()}
               />
             </div>
           );
